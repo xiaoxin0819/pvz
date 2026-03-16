@@ -6,59 +6,465 @@
 <title>问道修仙录 - 本地存档版</title>
 <style>
 :root{
-  --bg:#0a1020; --panel:#141d35; --panel2:#1b2948; --line:#314a79; --text:#eef4ff; --muted:#9eb2d4;
-  --gray:#9e9e9e; --green:#71dd91; --blue:#79a9ff; --purple:#b88cff; --orange:#ffb253; --gold:#ffd966;
+  --bg:#ece7df;
+  --panel:rgba(255,252,247,.84);
+  --panel2:rgba(246,240,231,.96);
+  --line:rgba(116,127,124,.18);
+  --text:#2f332f;
+  --muted:#73786f;
+  --accent:#4f7c78;
+  --gold:#b78a46;
+  --gray:#7e7a74;
+  --green:#5f9170;
+  --blue:#5f7d9e;
+  --purple:#8a7398;
+  --orange:#c58c59;
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:radial-gradient(circle at top,#182a4f 0%,#09101d 58%);color:var(--text);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
-.app{max-width:430px;min-height:100vh;margin:0 auto;padding:10px;display:flex;flex-direction:column;gap:10px}
-.page{display:none}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;outline:none}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at top, rgba(255,255,255,.72) 0%, transparent 24%),
+    radial-gradient(circle at 16% 18%, rgba(205,223,216,.36) 0%, transparent 28%),
+    radial-gradient(circle at 85% 12%, rgba(215,202,181,.28) 0%, transparent 26%),
+    linear-gradient(180deg,#f4efe7 0%, #ece7df 42%, #e5ddd3 100%);
+  color:var(--text);
+  font-family:"STKaiti","KaiTi","Source Han Serif SC",serif;
+  overflow-x:hidden;
+  line-height:1.5;
+}
+.title,
+.section-title,
+.card h3{
+  font-family:"STKaiti","KaiTi","Source Han Serif SC",serif;
+}
+.title{
+  font-style:italic;
+}
+button,
+.value,
+#hpText,
+#qiText,
+#expText,
+.bar-top,
+.stat,
+.realm-pill,
+.badge{
+  font-family:"STKaiti","KaiTi","Source Han Serif SC",serif;
+  font-variant-numeric:tabular-nums;
+}
+button{
+  font-family:"PingFang SC","Oswald",sans-serif;
+  font-weight:700;
+  letter-spacing:.02em;
+}
+.log-box,
+.log-item,
+.small,
+.subtitle,
+.label,
+.item,
+.card p,
+#rootTraitBox,
+#startRoot,
+#startTraits,
+#encounterBox,
+#encounterBox p,
+#secretRealmBox,
+#secretRealmBox p,
+#questBox,
+#questBox p,
+#monsterBox,
+#monsterBox p,
+#bossBox,
+#bossBox p,
+#moreBox,
+#inventoryBox,
+#equipBox,
+#artifactBox,
+#bagList,
+#marketList,
+body{
+  font-family:"Maple Mono","Maple Mono NF CN","Maple Mono NF","Microsoft YaHei",monospace;
+}
+.nav-item{
+  font-family:"Maple Mono","Maple Mono NF CN","Maple Mono NF","Microsoft YaHei",monospace;
+  font-weight:500;
+}
+.realm-pill{
+  font-style:italic;
+  text-shadow:0 0 8px rgba(183,138,70,.22);
+}
+.app{
+  max-width:480px;
+  min-height:100vh;
+  margin:0 auto;
+  padding:15px 15px 96px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.page{display:none;width:100%;animation:fadeIn .3s ease}
 .page.active{display:block}
-.panel{background:rgba(20,29,53,.96);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:0 12px 28px rgba(0,0,0,.25)}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(5px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.panel{
+  background:var(--panel);
+  backdrop-filter:blur(10px);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:16px;
+  box-shadow:
+    0 16px 34px rgba(90,87,77,.10),
+    inset 0 1px 0 rgba(255,255,255,.60);
+}
 h1,h2,h3,p{margin:0}
-.title{font-size:26px;font-weight:700}
-.subtitle{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px}
-.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.badge{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:11px}
-.section-title{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700;margin-bottom:10px}
+.title{
+  font-size:28px;
+  font-weight:800;
+  text-align:center;
+  margin-bottom:4px;
+  background:linear-gradient(180deg,#324845 0%,#4f7c78 52%,#c8a062 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.subtitle{
+  font-size:12px;
+  color:var(--muted);
+  text-align:center;
+  line-height:1.7;
+  margin:0 auto 15px;
+}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.badge{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:5px 10px;
+  font-size:11px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65);
+}
+#heroBadges .badge{
+  font-family:"Maple Mono","Maple Mono NF CN","Maple Mono NF","Microsoft YaHei",monospace;
+}
+.trait-badge{
+  font-family:"Maple Mono","Maple Mono NF CN","Maple Mono NF","Microsoft YaHei",monospace;
+}
+.trait-badge .trait-chip + .trait-chip::before{
+  content:"、";
+  color:var(--muted);
+}
+.section-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  font-size:16px;
+  font-weight:700;
+  margin-bottom:10px;
+}
 .sub{font-size:11px;color:var(--muted);font-weight:400}
-.card{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px}
-.card + .card{margin-top:8px}
-.card h3{font-size:15px;margin-bottom:8px}
+#realmText{
+  font-family:"Maple Mono","Maple Mono NF CN","Maple Mono NF","Microsoft YaHei",monospace;
+  font-size:16px;
+  font-weight:700;
+  letter-spacing:.01em;
+  color:#4b5754;
+  text-shadow:0 1px 0 rgba(255,255,255,.45);
+}
+.card{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:12px;
+  margin-bottom:10px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.65),
+    0 10px 22px rgba(94,90,77,.08);
+}
+.card + .card{margin-top:0}
+.card h3{font-size:14px;margin-bottom:8px;color:var(--gold)}
 .card p,.small{font-size:12px;color:var(--muted);line-height:1.6}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-button{width:100%;padding:11px 12px;background:#223764;border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:14px;cursor:pointer}
-button:disabled{opacity:.5;cursor:not-allowed}
-.btn-gold{background:#5e471d;color:#fff0c9}
-.btn-green{background:#214a39}
-.btn-red{background:#4f2731}
-.btn-purple{background:#4d356d}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.stat{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:8px 8px}
-.label{font-size:10px;color:var(--muted)}
-.value{font-size:13px;font-weight:700;margin-top:1px}
-.bar-group{margin-bottom:8px}
-.bar-top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px}
-.bar{height:10px;background:#0d1528;border:1px solid var(--line);border-radius:999px;overflow:hidden}
-.fill{height:100%;width:0%;transition:width .2s ease}
-.hp{background:linear-gradient(90deg,#e8667d,#f6a8b5)}
-.qi{background:linear-gradient(90deg,#5789ff,#89b0ff)}
-.exp{background:linear-gradient(90deg,#d59b34,#ffd966)}
-.log-box{background:#0f1628;border:1px solid var(--line);border-radius:14px;padding:10px;min-height:120px;max-height:24vh;overflow:auto}
-.log-item{font-size:12px;line-height:1.55;margin-bottom:8px}
-.nav{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.nav .tab{background:#1f2f55;border:1px solid var(--line);border-radius:13px;text-align:center;padding:10px 4px;font-size:11px;cursor:pointer}
-.nav .tab.active{background:#2a4677}
-.rarity-gray{color:var(--gray)} .rarity-green{color:var(--green)} .rarity-blue{color:var(--blue)} .rarity-purple{color:var(--purple)} .rarity-orange{color:var(--orange)} .rarity-gold{color:var(--gold)}
+.bag-grid{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:10px;
+}
+.bag-slot{
+  min-height:108px;
+  padding:10px 8px;
+  border:1px solid rgba(116,127,124,.14);
+  border-radius:14px;
+  background:rgba(255,250,242,.92);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  cursor:pointer;
+}
+.bag-slot.selected{
+  outline:2px solid #d6ae63;
+  box-shadow:0 0 0 3px rgba(214,174,99,.16), inset 0 1px 0 rgba(255,255,255,.75);
+}
+.bag-slot-name{
+  font-size:12px;
+  line-height:1.45;
+  word-break:break-word;
+}
+.bag-slot-meta{
+  font-size:10px;
+  color:var(--muted);
+  line-height:1.5;
+}
+.selected-item{
+  min-height:78px;
+}
+.selected-item .selected-title{
+  font-size:13px;
+  margin-bottom:6px;
+  font-weight:700;
+}
+.bag-pager{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.bag-pager span{
+  font-size:12px;
+  color:var(--muted);
+  text-align:center;
+  flex:1;
+}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{
+  width:100%;
+  padding:12px 8px;
+  background:linear-gradient(145deg,#6f9792,#537c77);
+  border:1px solid rgba(95,127,122,.26);
+  border-radius:16px;
+  color:#fffdf7;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:
+    0 10px 24px rgba(93,89,76,.10),
+    inset 0 1px 0 rgba(255,255,255,.35);
+}
+button:hover{filter:brightness(1.05)}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.45;filter:grayscale(1);cursor:not-allowed}
+.btn-gold{background:linear-gradient(145deg,#d2ad67,#b78940);border-color:rgba(183,138,70,.42);color:#fff8e7}
+.btn-green{background:linear-gradient(145deg,#78a986,#5f8f6f);border-color:rgba(95,145,112,.40)}
+.btn-red{background:linear-gradient(145deg,#cf8076,#b76457);border-color:rgba(183,100,87,.38)}
+.btn-purple{background:linear-gradient(145deg,#9684a7,#7d6b90);border-color:rgba(138,115,152,.38)}
+.grid2 button:not(.btn-gold):not(.btn-green):not(.btn-red):not(.btn-purple):nth-child(4n+1){
+  background:linear-gradient(145deg,#d2ad67,#b78940);
+  border-color:rgba(183,138,70,.32);
+}
+.grid2 button:not(.btn-gold):not(.btn-green):not(.btn-red):not(.btn-purple):nth-child(4n+2){
+  background:linear-gradient(145deg,#78a59d,#5f847c);
+  border-color:rgba(95,132,124,.32);
+}
+.grid2 button:not(.btn-gold):not(.btn-green):not(.btn-red):not(.btn-purple):nth-child(4n+3){
+  background:linear-gradient(145deg,#c6906a,#aa7652);
+  border-color:rgba(170,118,82,.30);
+}
+.grid2 button:not(.btn-gold):not(.btn-green):not(.btn-red):not(.btn-purple):nth-child(4n){
+  background:linear-gradient(145deg,#958daa,#7c7491);
+  border-color:rgba(124,116,145,.30);
+}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:15px}
+.stat{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:6px;
+  text-align:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+.label{font-size:10px;color:var(--muted);display:block}
+.value{font-size:12px;color:var(--accent);font-weight:700;margin-top:2px}
+.bar-group{margin-bottom:10px}
+.bar-top{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;font-weight:700}
+.bar{
+  height:8px;
+  background:rgba(136,132,118,.13);
+  border:1px solid rgba(116,127,124,.10);
+  border-radius:10px;
+  overflow:hidden;
+}
+.fill{height:100%;width:0%;transition:width .35s ease}
+.hp{background:linear-gradient(90deg,#d46a64,#e4a29d)}
+.qi{background:linear-gradient(90deg,#6ea5a0,#b5d6d1)}
+.exp{background:linear-gradient(90deg,#d0ac6a,#ead2a0)}
+.log-box{
+  background:rgba(255,251,246,.78);
+  border-radius:18px;
+  padding:12px;
+  min-height:120px;
+  max-height:24vh;
+  overflow:auto;
+  border:1px solid rgba(116,127,124,.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55);
+}
+.log-item{
+  border-left:2px solid var(--accent);
+  padding-left:8px;
+  margin-bottom:6px;
+  font-size:12px;
+  color:#485047;
+}
+.nav{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:8px;
+}
+.nav .tab{
+  background:linear-gradient(145deg,#223764,#1a2b50);
+  border:1px solid var(--line);
+  border-radius:14px;
+  text-align:center;
+  padding:10px 4px;
+  font-size:11px;
+  cursor:pointer;
+  color:var(--muted);
+}
+.nav .tab.active{
+  background:linear-gradient(145deg,#35589a,#233d6d);
+  color:#fff;
+  box-shadow:0 8px 20px rgba(37,71,133,.35);
+}
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:480px;
+  background:rgba(249,244,237,.94);
+  backdrop-filter:blur(15px);
+  border-top:1px solid rgba(116,127,124,.12);
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  padding:10px 5px 24px;
+  z-index:100;
+  box-shadow:0 -10px 28px rgba(93,89,76,.08);
+}
+.nav-item{
+  text-align:center;
+  font-size:11px;
+  color:var(--muted);
+  cursor:pointer;
+  transition:transform .18s ease,color .18s ease;
+}
+.nav-item i{
+  display:block;
+  font-size:18px;
+  margin-bottom:4px;
+  font-style:normal;
+}
+.nav-item.active{
+  color:var(--accent);
+  font-weight:700;
+  transform:translateY(-1px);
+  text-shadow:0 0 14px rgba(113,149,142,.18);
+}
+.rarity-gray{color:var(--gray)}
+.rarity-green{color:var(--green)}
+.rarity-blue{color:var(--blue)}
+.rarity-purple{color:var(--purple)}
+.rarity-orange{color:var(--orange)}
+.rarity-gold{
+  color:#d84c4c;
+  text-shadow:0 0 8px rgba(216,76,76,.45);
+}
 .list{display:grid;gap:8px}
-.item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px;font-size:12px;line-height:1.55}
+.item{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px;
+  font-size:12px;
+  line-height:1.55;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+.toast-wrap{
+  position:fixed;
+  top:16px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(420px,calc(100vw - 24px));
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  z-index:200;
+  pointer-events:none;
+}
+.toast{
+  padding:13px 15px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.14);
+  color:#fff;
+  font-size:13px;
+  line-height:1.5;
+  box-shadow:0 14px 30px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(12px);
+  animation:toastIn .22s ease;
+  position:relative;
+  overflow:hidden;
+}
+.toast::before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:4px;
+  opacity:.95;
+}
+.toast-info{
+  background:linear-gradient(135deg, rgba(184,137,70,.96), rgba(152,107,47,.96));
+}
+.toast-info::before{background:#ffe3ac}
+.toast-success{
+  background:linear-gradient(135deg, rgba(108,155,91,.96), rgba(79,121,68,.96));
+}
+.toast-success::before{background:#d4f0b9}
+.toast-warn{
+  background:linear-gradient(135deg, rgba(201,145,71,.96), rgba(162,113,49,.96));
+}
+.toast-warn::before{background:#ffe19a}
+.toast-error{
+  background:linear-gradient(135deg, rgba(192,100,91,.96), rgba(156,73,65,.96));
+}
+.toast-error::before{background:#ffb0b9}
+.toast-title{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.04em;
+  opacity:.88;
+  margin-bottom:2px;
+}
+.toast-body{
+  display:block;
+  font-size:14px;
+  font-weight:600;
+}
+@keyframes toastIn{
+  from{opacity:0;transform:translateY(-8px)}
+  to{opacity:1;transform:translateY(0)}
+}
 .center{text-align:center}
-.mt8{margin-top:8px} .mt10{margin-top:10px}
+.mt8{margin-top:8px}
+.mt10{margin-top:10px}
 .hidden{display:none}
 </style>
 </head>
 <body>
 <div class="app">
+  <div id="toastWrap" class="toast-wrap"></div>
 
   <div id="startPage" class="page active">
     <div class="panel">
@@ -113,18 +519,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
     </div>
 
     <div class="panel">
-      <div class="nav" style="grid-template-columns:repeat(7,1fr)">
-        <div class="tab active" onclick="switchTab('home', this)">修行</div>
-        <div class="tab" onclick="switchTab('world', this)">探索</div>
-        <div class="tab" onclick="switchTab('battle', this)">战斗</div>
-        <div class="tab" onclick="switchTab('craft', this)">百艺</div>
-        <div class="tab" onclick="switchTab('bag', this)">背包</div>
-        <div class="tab" onclick="switchTab('market', this)">坊市</div>
-        <div class="tab" onclick="switchTab('more', this)">更多</div>
-      </div>
-    </div>
-
-    <div class="panel">
       <div class="section-title"><span>交互结果</span><span class="sub">实时反馈</span></div>
       <div class="log-box" id="resultLog"></div>
     </div>
@@ -149,6 +543,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <div class="grid2">
           <button onclick="explore()">进入探索</button>
           <button onclick="claimQuestReward()">领取可完成任务</button>
+        </div>
+        <div class="grid2 mt10">
+          <button class="btn-purple" onclick="autoExploreSpiritScene()">自动寻灵</button>
+          <button class="btn-gold" onclick="restoreCurrentLocation()">回补当前灵气</button>
         </div>
         <div class="card mt10" id="encounterBox"></div>
         <div class="card mt10" id="secretRealmBox"></div>
@@ -211,21 +609,34 @@ button:disabled{opacity:.5;cursor:not-allowed}
           <h3>当前法宝</h3>
           <p id="artifactBox"></p>
         </div>
+        <div class="card mt10">
+          <h3>当前功法</h3>
+          <p id="manualBox"></p>
+        </div>
         <div class="grid2 mt10">
           <button onclick="equipSelectedWeapon()">装备选中装备</button>
           <button onclick="equipSelectedArtifact()">装备选中法宝</button>
         </div>
         <div class="grid2 mt10">
           <button onclick="useSelectedItem()">使用选中物品</button>
-          <button onclick="sellSelectedItem()">一键出售到坊市</button>
+          <button onclick="sellDuplicateItems()">一键出售重复物品</button>
         </div>
         <div class="grid2 mt10">
-          <button onclick="sellDuplicateItems()">出售重复装备</button>
+          <button onclick="learnSelectedManual()">学习选中功法</button>
           <button onclick="clearBagSelection()">取消选中</button>
         </div>
         <div class="card mt10">
-          <h3>背包列表</h3>
-          <div id="bagList" class="list"></div>
+          <h3>选中物品</h3>
+          <div id="selectedItemBox" class="selected-item small">点击下方格子查看物品详情，并进行装备、参悟或使用。</div>
+        </div>
+        <div class="card mt10">
+          <h3>背包格</h3>
+          <div class="bag-pager mt8">
+            <button onclick="changeBagPage(-1)">上一页</button>
+            <span id="bagPageInfo">第 1 / 1 页</span>
+            <button onclick="changeBagPage(1)">下一页</button>
+          </div>
+          <div id="bagList" class="bag-grid"></div>
         </div>
       </div>
     </div>
@@ -287,23 +698,33 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 
   </div>
+
+  <div id="bottomNav" class="bottom-nav hidden">
+    <div class="nav-item active" onclick="switchTab('home', this)"><i>☯</i>修行</div>
+    <div class="nav-item" onclick="switchTab('world', this)"><i>🧭</i>探索</div>
+    <div class="nav-item" onclick="switchTab('battle', this)"><i>⚔</i>战斗</div>
+    <div class="nav-item" onclick="switchTab('craft', this)"><i>🔥</i>百艺</div>
+    <div class="nav-item" onclick="switchTab('bag', this)"><i>🎒</i>背包</div>
+    <div class="nav-item" onclick="switchTab('market', this)"><i>⚖</i>坊市</div>
+    <div class="nav-item" onclick="switchTab('more', this)"><i>⚙</i>更多</div>
+  </div>
 </div>
 
 <script>
 const realmTable = [
   {name:'炼气',need:0},
-  {name:'筑基',need:30000},
-  {name:'金丹',need:300000},
-  {name:'元婴',need:3000000},
-  {name:'化神',need:15000000},
-  {name:'炼虚',need:60000000},
-  {name:'合体',need:240000000},
-  {name:'大乘',need:900000000},
-  {name:'渡劫',need:3000000000},
-  {name:'真仙',need:10000000000},
-  {name:'仙王',need:30000000000},
-  {name:'仙帝',need:100000000000},
-  {name:'道祖',need:300000000000}
+  {name:'筑基',need:8000},
+  {name:'金丹',need:45000},
+  {name:'元婴',need:180000},
+  {name:'化神',need:700000},
+  {name:'炼虚',need:2500000},
+  {name:'合体',need:9000000},
+  {name:'大乘',need:32000000},
+  {name:'渡劫',need:110000000},
+  {name:'真仙',need:360000000},
+  {name:'仙王',need:1200000000},
+  {name:'仙帝',need:4200000000},
+  {name:'道祖',need:15000000000}
 ];
 const spiritualRootTiers = [
   {tier:'凡品',chance:0.80,roots:['金灵根','木灵根','水灵根','火灵根','土灵根']},
@@ -315,17 +736,17 @@ const spiritualRootTiers = [
   {tier:'神品',chance:0.00001,roots:['混沌灵根']}
 ];
 const rootEffects = {
-  '凡品金灵根':{cultivate:0.6,encounter:0.9,awakenable:false},'凡品木灵根':{cultivate:0.6,encounter:0.9,awakenable:false},
-  '凡品水灵根':{cultivate:0.6,encounter:0.9,awakenable:false},'凡品火灵根':{cultivate:0.6,encounter:0.9,awakenable:false},
-  '凡品土灵根':{cultivate:0.6,encounter:0.9,awakenable:false},'中品金灵根':{cultivate:0.8,encounter:1.0,awakenable:false},
-  '中品木灵根':{cultivate:0.8,encounter:1.0,awakenable:false},'中品水灵根':{cultivate:0.8,encounter:1.0,awakenable:false},
-  '中品火灵根':{cultivate:0.8,encounter:1.0,awakenable:false},'中品土灵根':{cultivate:0.8,encounter:1.0,awakenable:false},
-  '上品金灵根':{cultivate:1.0,encounter:1.05,awakenable:false},'上品木灵根':{cultivate:1.0,encounter:1.05,awakenable:false},
-  '上品水灵根':{cultivate:1.0,encounter:1.05,awakenable:false},'上品火灵根':{cultivate:1.0,encounter:1.05,awakenable:false},
-  '上品土灵根':{cultivate:1.0,encounter:1.05,awakenable:false},'天灵根':{cultivate:10,encounter:1.4,awakenable:true,awakenMult:10},
-  '雷灵根':{cultivate:50,encounter:1.9,awakenable:true,awakenMult:20},'冰灵根':{cultivate:50,encounter:1.9,awakenable:true,awakenMult:20},
-  '风灵根':{cultivate:50,encounter:1.8,awakenable:true,awakenMult:15},'仙灵根':{cultivate:1000,encounter:3,awakenable:true,awakenMult:100},
-  '混沌灵根':{cultivate:100000,encounter:3,awakenable:true,awakenMult:100}
+  '凡品金灵根':{cultivate:0.85,encounter:0.95,awakenable:false},'凡品木灵根':{cultivate:0.85,encounter:0.95,awakenable:false},
+  '凡品水灵根':{cultivate:0.85,encounter:0.95,awakenable:false},'凡品火灵根':{cultivate:0.85,encounter:0.95,awakenable:false},
+  '凡品土灵根':{cultivate:0.85,encounter:0.95,awakenable:false},'中品金灵根':{cultivate:1.00,encounter:1.00,awakenable:false},
+  '中品木灵根':{cultivate:1.00,encounter:1.00,awakenable:false},'中品水灵根':{cultivate:1.00,encounter:1.00,awakenable:false},
+  '中品火灵根':{cultivate:1.00,encounter:1.00,awakenable:false},'中品土灵根':{cultivate:1.00,encounter:1.00,awakenable:false},
+  '上品金灵根':{cultivate:1.15,encounter:1.08,awakenable:false},'上品木灵根':{cultivate:1.15,encounter:1.08,awakenable:false},
+  '上品水灵根':{cultivate:1.15,encounter:1.08,awakenable:false},'上品火灵根':{cultivate:1.15,encounter:1.08,awakenable:false},
+  '上品土灵根':{cultivate:1.15,encounter:1.08,awakenable:false},'天灵根':{cultivate:1.35,encounter:1.18,awakenable:true,awakenMult:2},
+  '雷灵根':{cultivate:1.55,encounter:1.24,awakenable:true,awakenMult:2.4},'冰灵根':{cultivate:1.55,encounter:1.24,awakenable:true,awakenMult:2.4},
+  '风灵根':{cultivate:1.50,encounter:1.20,awakenable:true,awakenMult:2.2},'仙灵根':{cultivate:1.90,encounter:1.35,awakenable:true,awakenMult:3.2},
+  '混沌灵根':{cultivate:2.40,encounter:1.50,awakenable:true,awakenMult:4.5}
 };
 const traitPool = [
   {name:'筋骨强健', tier:'凡品', bonus:{maxHp:10}},
@@ -364,11 +785,11 @@ const traitPool = [
   {name:'天命唯一', tier:'神品', bonus:{cultivate:5.00, atk:50, fate:20}}
 ];
 const rootTraitSynergy = {
-  '雷灵根':{'引雷入体':{atk:25,cultivate:0.6,desc:'雷霆淬体'}},
+  '雷灵根':{'引雷入体':{atk:25,cultivate:0.18,desc:'雷霆淬体'}},
   '冰灵根':{'寒髓之体':{maxHp:80,def:6,desc:'寒气护体'}},
-  '风灵根':{'御风而行':{encounter:0.15,cultivate:0.25,desc:'御风无痕'}},
-  '天灵根':{'大道宠儿':{cultivate:0.8,desc:'天道亲和'}},
-  '混沌灵根':{'混沌道体':{cultivate:2.0,encounter:0.3,atk:20,desc:'混沌加护'},'天命之子':{encounter:0.25,desc:'命数暴涨'}}
+  '风灵根':{'御风而行':{encounter:0.15,cultivate:0.12,desc:'御风无痕'}},
+  '天灵根':{'大道宠儿':{cultivate:0.20,desc:'天道亲和'}},
+  '混沌灵根':{'混沌道体':{cultivate:0.35,encounter:0.18,atk:20,desc:'混沌加护'},'天命之子':{encounter:0.18,desc:'命数暴涨'}}
 };
 const herbPool = [
   {name:'凝露草',rarity:'凡',qi:2},{name:'赤阳花',rarity:'黄',qi:4},{name:'玄冰叶',rarity:'玄',qi:6},{name:'紫府藤',rarity:'地',qi:9},{name:'天心果',rarity:'天',qi:14}
@@ -391,6 +812,36 @@ const maps = [
   {name:'古修遗府',type:'探索',danger:4,reward:'随机奇遇',spirit:70},
   {name:'天裂秘境',type:'综合',danger:5,reward:'高阶资源',spirit:110}
 ];
+const spiritScenePrefixes = ['流云','赤霞','玄月','紫霄','太虚','九曜','灵渊','天衍','星罗','青冥'];
+const spiritSceneSuffixes = ['洞天','福地','秘窟','古界','灵府','天宫','幻境','遗境','灵墟','宝域'];
+const spiritSceneRewards = ['高浓度灵气','稀有灵草','高阶矿脉','古修机缘','秘藏残卷','灵兽踪迹'];
+const craftNarratives = {
+  gatherHerb: [
+    '你拨开湿润藤叶，指尖触到一缕药香，顺势采下灵草。',
+    '晨雾未散，草叶凝露，你循着微弱灵机找到了一株可用药材。',
+    '你俯身辨认药性，在乱石缝隙间稳稳取出这株灵草。'
+  ],
+  mineOre: [
+    '镐声回荡，你顺着矿脉纹理敲下了一块灵矿。',
+    '碎石飞溅之间，矿层里透出灵光，你成功剥离出一份矿材。',
+    '你以灵识探脉，在矿壁薄弱处精准落锤，取出有用矿石。'
+  ],
+  refinePill: [
+    '丹火温养药液，炉内药香渐稳，灵性缓缓凝成丹丸。',
+    '你引灵入炉，药性互融，丹纹在炉火中一点点浮现。',
+    '火候恰到好处，药液回旋成珠，最终凝成可服之丹。'
+  ],
+  forge: [
+    '地火翻卷，矿液被你反复锻打，器胚逐渐显出锋芒。',
+    '你稳住炉温，以灵力牵引金铁精华，器形终于定下。',
+    '锤音起落之间，杂质尽去，一件可用兵刃终于成型。'
+  ],
+  upgradeCave: [
+    '洞府灵纹一层层亮起，新的设施顺利嵌入灵脉节点。',
+    '你重整洞府格局，阵纹与石壁相合，整座洞府气机更稳。',
+    '伴随灵石嵌入，洞府内部灵气流向被彻底梳理。'
+  ]
+};
 const encounterTemplates = [
   {title:'山野遗物',tier:'凡品',intro:'你在山野间发现一名散修遗留的旧包裹。',options:['谨慎查看','直接收取','继续搜寻']},
   {title:'溪谷灵泉',tier:'凡品',intro:'一口灵泉缓缓流淌，周围散落着少量灵石。',options:['汲取灵气','挖掘泉眼','收集碎石']},
@@ -406,15 +857,47 @@ const encounterTemplates = [
 const divineArtifacts = [
   {name:'太初混沌钟',rank:'极品至宝',effect:'攻击+18 防御+6'},
   {name:'九转长生莲',rank:'极品至宝',effect:'寿元+120 气血上限+50'},
-  {name:'天衍道纹炉',rank:'仙品至宝',effect:'炼丹+2 炼器+1'},
-  {name:'虚空遁界符',rank:'仙品至宝',effect:'探索+2 灵气上限+20'},
-  {name:'诸天剑胚',rank:'仙品至宝',effect:'终极本命剑胚'}
+  {name:'天衍道纹炉',rank:'仙品先天至宝',effect:'炼丹+2 炼器+1'},
+  {name:'虚空遁界符',rank:'仙品先天至宝',effect:'探索+2 灵气上限+20'},
+  {name:'诸天剑胚',rank:'仙品先天至宝',effect:'终极本命剑胚'}
 ];
 const chaosTreasures = [
-  {name:'混沌灵宝·太虚源轮',rank:'神品混沌灵宝',effect:'气血、灵气、攻击全面暴涨'},
-  {name:'混沌灵宝·玄黄道种',rank:'神品混沌灵宝',effect:'修炼速度与气运大幅提升'},
-  {name:'混沌灵宝·万界胚胎',rank:'神品混沌灵宝',effect:'突破、奇遇、成长全面强化'}
+  {name:'混沌至宝·太虚源轮',rank:'混沌至宝',effect:'气血、灵气、攻击全面暴涨'},
+  {name:'混沌至宝·玄黄道种',rank:'混沌至宝',effect:'修炼速度与气运大幅提升'},
+  {name:'混沌至宝·万界胚胎',rank:'混沌至宝',effect:'突破、奇遇、成长全面强化'}
 ];
+const manualPool = [
+  {name:'凡品功法·火弹术', tier:'凡品', style:'单体爆发', bonus:{damagePct:0.12}},
+  {name:'凡品功法·破甲诀', tier:'凡品', style:'清怪特攻', bonus:{critRatePct:0.12, cultivatePct:0.06}},
+  {name:'中品功法·雷光咒', tier:'中品', style:'群伤', bonus:{damagePct:0.22, critDamagePct:0.18}},
+  {name:'中品功法·斩妖录', tier:'中品', style:'清怪特攻', bonus:{critRatePct:0.20, damageReducePct:0.18, cultivatePct:0.10}},
+  {name:'上品功法·太玄剑经', tier:'上品', style:'单体爆发', bonus:{damagePct:0.35, critRatePct:0.25, critDamagePct:0.35}},
+  {name:'上品功法·焚天秘卷', tier:'上品', style:'Boss特攻', bonus:{damagePct:0.35, damageReducePct:0.25, critResistPct:0.25, cultivatePct:0.15}},
+  {name:'九转杀伐经', tier:'极品', style:'单体爆发', bonus:{damagePct:0.50, critRatePct:0.35, critDamagePct:0.45, damageReducePct:0.30}},
+  {name:'万象诛邪谱', tier:'极品', style:'清怪特攻', bonus:{damagePct:0.48, critRatePct:0.38, critResistPct:0.32, damageReducePct:0.32, cultivatePct:0.20}},
+  {name:'太虚仙录', tier:'仙品', style:'Boss特攻', bonus:{damagePct:0.68, critRatePct:0.45, critDamagePct:0.55, critResistPct:0.40, cultivatePct:0.28}},
+  {name:'寂灭天书', tier:'仙品', style:'群伤', bonus:{damagePct:0.65, critRatePct:0.42, critDamagePct:0.50, damageReducePct:0.42}},
+  {name:'混沌灭界经', tier:'神品', style:'Boss特攻', bonus:{damagePct:0.95, critRatePct:0.60, critDamagePct:0.75, critResistPct:0.55, damageReducePct:0.55, cultivatePct:0.40}},
+  {name:'大道诛仙典', tier:'神品', style:'单体爆发', bonus:{damagePct:0.92, critRatePct:0.58, critDamagePct:0.82, critResistPct:0.50, damageReducePct:0.50}}
+];
+const manualStyleConfig = {
+  '单体爆发': {
+    monster: {damageBonus:0.28, critRateBonus:8, critDamageBonus:35, qiFactor:1.10},
+    boss: {damageBonus:0.34, critRateBonus:12, critDamageBonus:50, qiFactor:1.15}
+  },
+  '群伤': {
+    monster: {damageBonus:0.24, qiFactor:0.75, expBonus:0.20, stoneBonus:0.28},
+    boss: {damageBonus:0.05, qiFactor:0.82}
+  },
+  'Boss特攻': {
+    monster: {damageBonus:0.08, qiFactor:0.92},
+    boss: {damageBonus:0.48, critRateBonus:10, critDamageBonus:40, qiFactor:1.05, expBonus:0.20, stoneBonus:0.25}
+  },
+  '清怪特攻': {
+    monster: {damageBonus:0.42, qiFactor:0.82, expBonus:0.18, stoneBonus:0.30},
+    boss: {damageBonus:0.02, qiFactor:0.92}
+  }
+};
 const sectBranches = [
   {name:'青玄剑峰',focus:'剑修',bonus:{atk:12}},
   {name:'离火丹殿',focus:'丹修',bonus:{alchemy:2}},
@@ -455,6 +938,14 @@ const worldBossPool = [
   {name:'太古魔猿',hp:6500,atk:140,tier:'远古',drop:'魔猿精血'},
   {name:'虚空鲲祖',hp:8000,atk:160,tier:'虚空',drop:'鲲祖之鳞'}
 ];
+const bossRewardArtifacts = [
+  {name:'上品法宝·镇岳印', tier:'上品法宝'},
+  {name:'上品法宝·离火幡', tier:'上品法宝'},
+  {name:'极品灵宝·雷狱枪', tier:'极品灵宝'},
+  {name:'极品灵宝·玄冥镜', tier:'极品灵宝'},
+  {name:'仙品仙器·裂穹剑', tier:'仙品仙器'},
+  {name:'仙品仙器·万象铃', tier:'仙品仙器'}
+];
 const secretRealms = [
   {name:'九幽秘境',floors:30,reward:'阴属性材料'},
   {name:'太古战场',floors:40,reward:'远古法宝'},
@@ -467,12 +958,49 @@ let startData = null;
 let previousStartData = null;
 let selectedBagIndex = -1;
 let selectedBagType = '';
+let bagPage = 1;
+const BAG_PAGE_SIZE = 24;
 
 function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 function nextRealmNeed(exp){ for(const r of realmTable){ if(exp < r.need) return r.need; } return realmTable[realmTable.length-1].need; }
 function realmFromExp(exp){ let cur = realmTable[0].name; for(const r of realmTable){ if(exp >= r.need) cur = r.name; } return cur; }
 function realmIndexFromName(name){ return Math.max(0, realmTable.findIndex(r => r.name === name)); }
+function realmBounds(realm){
+  const idx = realmIndexFromName(realm);
+  const current = realmTable[idx];
+  const next = realmTable[idx + 1];
+  return {
+    currentNeed: current ? current.need : 0,
+    nextNeed: next ? next.need : current.need
+  };
+}
+function minorRealmInfo(exp, realm){
+  const { currentNeed, nextNeed } = realmBounds(realm);
+  const span = Math.max(1, nextNeed - currentNeed);
+  const progress = Math.max(0, Math.min(0.999999, (exp - currentNeed) / span));
+  if(realm === '炼气'){
+    const level = Math.min(9, Math.floor(progress * 9) + 1);
+    const stageNeed = currentNeed + Math.floor(span / 9) * (level - 1);
+    const nextStageNeed = level >= 9 ? nextNeed : currentNeed + Math.floor(span / 9) * level;
+    return {
+      label: `炼气${level}层`,
+      shortLabel: `${level}层`,
+      stageNeed,
+      nextStageNeed
+    };
+  }
+  const stages = ['初期','中期','后期','圆满'];
+  const idx = Math.min(3, Math.floor(progress * 4));
+  const stageNeed = currentNeed + Math.floor(span / 4) * idx;
+  const nextStageNeed = idx >= 3 ? nextNeed : currentNeed + Math.floor(span / 4) * (idx + 1);
+  return {
+    label: `${realm}${stages[idx]}`,
+    shortLabel: stages[idx],
+    stageNeed,
+    nextStageNeed
+  };
+}
 function applyRealmGrowth(oldRealm, newRealm){
   const oldIdx = realmIndexFromName(oldRealm);
   const newIdx = realmIndexFromName(newRealm);
@@ -513,6 +1041,271 @@ function applyRealmGrowth(oldRealm, newRealm){
 function rarityMultiplier(r){ return ({'凡':1,'黄':1.3,'玄':1.6,'地':2,'天':2.8}[r] || 1); }
 function countByName(items){ const o={}; items.forEach(i=>o[i.name]=(o[i.name]||0)+1); return o; }
 function fullRootKey(root){ return ['天灵根','雷灵根','冰灵根','风灵根','仙灵根','混沌灵根'].includes(root.name) ? root.name : `${root.tier}${root.name}`; }
+function formatStatDelta(patch){
+  if(!patch) return '无加成';
+  const flatMapping = [['atk','攻击'],['def','防御'],['maxHp','气血'],['speed','速度'],['maxQi','灵气'],['fate','气运'],['critRate','会心'],['critDamage','会伤'],['exploration','探索'],['alchemy','炼丹'],['forge','炼器'],['lifespan','寿元']];
+  const pctMapping = [['atkPct','攻击'],['defPct','防御'],['maxHpPct','气血'],['maxQiPct','灵气'],['fatePct','气运'],['speedPct','速度'],['critRatePct','会心'],['critDamagePct','会伤'],['critResistPct','会心抵抗'],['cultivatePct','修炼速度'],['damagePct','伤害加成'],['damageReducePct','伤害抵抗'],['skillDamagePct','功法伤害'],['monsterDamagePct','妖兽伤害'],['bossDamagePct','Boss伤害']];
+  const parts = flatMapping.filter(([k]) => patch[k]).map(([k, label]) => `${label}+${Math.floor(patch[k])}`);
+  pctMapping.filter(([k]) => patch[k]).forEach(([k, label]) => {
+    parts.push(`${label}+${Math.round(patch[k] * 100)}%`);
+  });
+  if(patch.cultivateBonus && !patch.cultivatePct) parts.push(`修炼速度+${Math.round(patch.cultivateBonus * 100)}%`);
+  return parts.length ? parts.join('，') : '无加成';
+}
+function applyStatPatch(patch, sign = 1){
+  if(!patch) return;
+  if(patch.atk) player.atk += sign * patch.atk;
+  if(patch.def) player.def += sign * patch.def;
+  if(patch.fate) player.fate += sign * patch.fate;
+  if(patch.speed) player.speed += sign * patch.speed;
+  if(patch.critRate) player.critRate += sign * patch.critRate;
+  if(patch.critDamage) player.critDamage += sign * patch.critDamage;
+  if(patch.critResistPct) player.critResistPct = (player.critResistPct || 0) + sign * patch.critResistPct;
+  if(patch.damagePct) player.damagePct = (player.damagePct || 0) + sign * patch.damagePct;
+  if(patch.damageReducePct) player.damageReducePct = (player.damageReducePct || 0) + sign * patch.damageReducePct;
+  if(patch.skillDamagePct) player.skillDamagePct = (player.skillDamagePct || 0) + sign * patch.skillDamagePct;
+  if(patch.monsterDamagePct) player.monsterDamagePct = (player.monsterDamagePct || 0) + sign * patch.monsterDamagePct;
+  if(patch.bossDamagePct) player.bossDamagePct = (player.bossDamagePct || 0) + sign * patch.bossDamagePct;
+  if(patch.exploration) player.explorationLv += sign * patch.exploration;
+  if(patch.alchemy) player.alchemyLv += sign * patch.alchemy;
+  if(patch.forge) player.forgeLv += sign * patch.forge;
+  if(patch.lifespan) player.lifespan += sign * patch.lifespan;
+  if(patch.cultivateBonus) player.cultivateBonus = (player.cultivateBonus || 0) + sign * patch.cultivateBonus;
+  if(patch.maxHp){
+    player.maxHp += sign * patch.maxHp;
+    player.hp = sign > 0 ? Math.min(player.maxHp, player.hp + patch.maxHp) : Math.min(player.hp, player.maxHp);
+  }
+  if(patch.maxQi){
+    player.maxQi += sign * patch.maxQi;
+    player.qi = sign > 0 ? Math.min(player.maxQi, player.qi + patch.maxQi) : Math.min(player.qi, player.maxQi);
+  }
+}
+function resolveBonusTemplate(template){
+  if(!template) return null;
+  const resolved = {};
+  if(template.atk) resolved.atk = template.atk;
+  if(template.def) resolved.def = template.def;
+  if(template.maxHp) resolved.maxHp = template.maxHp;
+  if(template.maxQi) resolved.maxQi = template.maxQi;
+  if(template.fate) resolved.fate = template.fate;
+  if(template.speed) resolved.speed = template.speed;
+  if(template.critRate) resolved.critRate = template.critRate;
+  if(template.critDamage) resolved.critDamage = template.critDamage;
+  if(template.exploration) resolved.exploration = template.exploration;
+  if(template.alchemy) resolved.alchemy = template.alchemy;
+  if(template.forge) resolved.forge = template.forge;
+  if(template.lifespan) resolved.lifespan = template.lifespan;
+  if(template.atkPct) resolved.atk = (resolved.atk || 0) + Math.max(1, Math.floor(player.atk * template.atkPct));
+  if(template.defPct) resolved.def = (resolved.def || 0) + Math.max(1, Math.floor(player.def * template.defPct));
+  if(template.maxHpPct) resolved.maxHp = (resolved.maxHp || 0) + Math.max(1, Math.floor(player.maxHp * template.maxHpPct));
+  if(template.maxQiPct) resolved.maxQi = (resolved.maxQi || 0) + Math.max(1, Math.floor(player.maxQi * template.maxQiPct));
+  if(template.fatePct) resolved.fate = (resolved.fate || 0) + Math.max(1, Math.floor(Math.max(1, player.fate) * template.fatePct));
+  if(template.speedPct) resolved.speed = (resolved.speed || 0) + Math.max(1, Math.floor(Math.max(1, player.speed) * template.speedPct));
+  if(template.critRatePct) resolved.critRate = (resolved.critRate || 0) + Math.max(1, Math.floor(Math.max(1, player.critRate) * template.critRatePct));
+  if(template.critDamagePct) resolved.critDamage = (resolved.critDamage || 0) + Math.max(1, Math.floor(Math.max(1, player.critDamage) * template.critDamagePct));
+  if(template.critResistPct) resolved.critResistPct = (resolved.critResistPct || 0) + template.critResistPct;
+  if(template.damagePct) resolved.damagePct = (resolved.damagePct || 0) + template.damagePct;
+  if(template.damageReducePct) resolved.damageReducePct = (resolved.damageReducePct || 0) + template.damageReducePct;
+  if(template.skillDamagePct) resolved.skillDamagePct = (resolved.skillDamagePct || 0) + template.skillDamagePct;
+  if(template.monsterDamagePct) resolved.monsterDamagePct = (resolved.monsterDamagePct || 0) + template.monsterDamagePct;
+  if(template.bossDamagePct) resolved.bossDamagePct = (resolved.bossDamagePct || 0) + template.bossDamagePct;
+  if(template.cultivatePct) resolved.cultivateBonus = (resolved.cultivateBonus || 0) + template.cultivatePct;
+  return resolved;
+}
+function equipmentTierScore(text){
+  const t = String(text || '');
+  let quality = 1;
+  if(t.includes('中品')) quality = 1.8;
+  else if(t.includes('上品')) quality = 3.2;
+  else if(t.includes('极品')) quality = 6.2;
+  else if(t.includes('仙品')) quality = 12;
+  else if(t.includes('神品')) quality = 24;
+
+  let category = 1;
+  if(t.includes('法器')) category = 1;
+  else if(t.includes('灵器')) category = 2.2;
+  else if(t.includes('法宝')) category = 5;
+  else if(t.includes('灵宝')) category = 10;
+  else if(t.includes('仙器')) category = 20;
+  else if(t.includes('神器')) category = 40;
+  else if(t.includes('至宝')) category = 80;
+  else if(t.includes('混沌')) category = 160;
+
+  return quality * category;
+}
+function itemTierName(item){
+  const text = String(item?.tier || item?.rank || item?.name || '');
+  if(text.includes('神品') || text.includes('混沌至宝') || text.includes('神器')) return '神品';
+  if(text.includes('仙品') || text.includes('先天至宝') || text.includes('仙器')) return '仙品';
+  if(text.includes('极品') || text.includes('极品至宝') || text.includes('灵宝')) return '极品';
+  if(text.includes('上品') || text.includes('法宝')) return '上品';
+  if(text.includes('中品') || text.includes('灵器')) return '中品';
+  return '凡品';
+}
+function hashString(text){
+  let hash = 2166136261;
+  const str = String(text || '');
+  for(let i = 0; i < str.length; i++){
+    hash ^= str.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return Math.abs(hash >>> 0);
+}
+function seededValue(seed, min, max){
+  const span = max - min;
+  if(span <= 0) return min;
+  return min + (seed % (span + 1));
+}
+const tierAffixRules = {
+  '凡品': {count:1, pctMax:5, flatScale:1},
+  '中品': {count:2, pctMax:10, flatScale:2},
+  '上品': {count:3, pctMax:20, flatScale:4},
+  '极品': {count:4, pctMax:30, flatScale:8},
+  '仙品': {count:5, pctMax:40, flatScale:16},
+  '神品': {count:6, pctMax:60, flatScale:32}
+};
+const affixCatalog = {
+  weapon: [
+    {key:'atk', label:'攻击', flat:[300,600,1500,4000,9000,18000]},
+    {key:'atkPct', label:'攻击%', pct:true},
+    {key:'def', label:'防御', flat:[80,180,420,1000,2200,5000]},
+    {key:'defPct', label:'防御%', pct:true},
+    {key:'speed', label:'速度', flat:[20,45,100,240,520,1200]},
+    {key:'speedPct', label:'速度%', pct:true},
+    {key:'maxHp', label:'气血', flat:[500,1200,3000,7600,18000,42000]},
+    {key:'maxHpPct', label:'气血%', pct:true},
+    {key:'maxQi', label:'灵气', flat:[300,900,2200,5600,12800,26000]},
+    {key:'maxQiPct', label:'灵气%', pct:true},
+    {key:'critRatePct', label:'会心%', pct:true},
+    {key:'critDamagePct', label:'会伤%', pct:true},
+    {key:'critResistPct', label:'会心抵抗%', pct:true},
+    {key:'damagePct', label:'伤害加成%', pct:true},
+    {key:'damageReducePct', label:'伤害抵抗%', pct:true}
+  ],
+  artifact: [
+    {key:'atk', label:'攻击', flat:[400,900,2200,5600,12800,26000]},
+    {key:'atkPct', label:'攻击%', pct:true},
+    {key:'def', label:'防御', flat:[120,260,700,1800,4200,9000]},
+    {key:'defPct', label:'防御%', pct:true},
+    {key:'speed', label:'速度', flat:[30,70,180,420,980,2200]},
+    {key:'speedPct', label:'速度%', pct:true},
+    {key:'maxHp', label:'气血', flat:[1200,2800,7600,18000,42000,88000]},
+    {key:'maxHpPct', label:'气血%', pct:true},
+    {key:'maxQi', label:'灵气', flat:[800,1800,5000,12000,28000,60000]},
+    {key:'maxQiPct', label:'灵气%', pct:true},
+    {key:'critRatePct', label:'会心%', pct:true},
+    {key:'critDamagePct', label:'会伤%', pct:true},
+    {key:'critResistPct', label:'会心抵抗%', pct:true},
+    {key:'damagePct', label:'伤害加成%', pct:true},
+    {key:'damageReducePct', label:'伤害抵抗%', pct:true},
+    {key:'cultivatePct', label:'修炼速度%', pct:true}
+  ]
+};
+function buildTieredBonus(item, kind){
+  const tier = itemTierName(item);
+  const rule = tierAffixRules[tier] || tierAffixRules['凡品'];
+  const pool = affixCatalog[kind];
+  const coexistKeys = new Set(['atk','def','speed']);
+  const seedBase = hashString(`${item.name || ''}|${item.tier || item.rank || ''}|${kind}`);
+  const ordered = [...pool].sort((a, b) => ((hashString(`${seedBase}-${a.key}`) % 997) - (hashString(`${seedBase}-${b.key}`) % 997)));
+  const chosen = [];
+  for(const affix of ordered){
+    if(chosen.length >= rule.count) break;
+    if(chosen.some(x => x.key === affix.key)) continue;
+    if(affix.pct){
+      const baseKey = affix.key.replace('Pct', '');
+      if(!coexistKeys.has(baseKey) && chosen.some(x => x.key === baseKey)) continue;
+    }else{
+      const pctKey = `${affix.key}Pct`;
+      if(!coexistKeys.has(affix.key) && chosen.some(x => x.key === pctKey)) continue;
+    }
+    chosen.push(affix);
+  }
+  const template = {};
+  const tierIndex = ['凡品','中品','上品','极品','仙品','神品'].indexOf(tier);
+  chosen.forEach((affix, idx) => {
+    const seed = hashString(`${seedBase}-${affix.key}-${idx}`);
+    if(affix.pct){
+      const minPct = Math.max(1, Math.floor(rule.pctMax * 0.55));
+      const value = seededValue(seed, minPct, rule.pctMax) / 100;
+      template[affix.key] = value;
+    }else{
+      const base = affix.flat[tierIndex] || affix.flat[0];
+      const min = Math.floor(base * 0.82);
+      const max = Math.floor(base * 1.08);
+      template[affix.key] = seededValue(seed, min, max);
+    }
+  });
+  return template;
+}
+function inferWeaponBonus(item){
+  const artifactTemplate = buildTieredBonus({...item, type:'artifact'}, 'artifact');
+  const template = {};
+  Object.entries(artifactTemplate).forEach(([key, value]) => {
+    template[key] = typeof value === 'number'
+      ? (key.endsWith('Pct') ? +(value * 0.6).toFixed(3) : Math.max(1, Math.floor(value * 0.6)))
+      : value;
+  });
+  if(item.power) template.atk = (template.atk || 0) + item.power;
+  return template;
+}
+function inferArtifactBonus(item){
+  return buildTieredBonus(item, 'artifact');
+}
+function normalizeCritBonusTemplate(template){
+  if(!template) return template;
+  const next = {...template};
+  if(next.critRate && !next.critRatePct){
+    next.critRatePct = +(next.critRate / 100).toFixed(3);
+    delete next.critRate;
+  }
+  if(next.critDamage && !next.critDamagePct){
+    next.critDamagePct = +(next.critDamage / 100).toFixed(3);
+    delete next.critDamage;
+  }
+  return next;
+}
+function describeEquipBonus(item){
+  if(!item) return '无加成';
+  const bonus = item.bonusTemplate || item.bonus || (isEquipableWeapon(item) ? inferWeaponBonus(item) : isEquipableTreasure(item) ? inferArtifactBonus(item) : null);
+  return formatStatDelta(bonus);
+}
+function equipWeaponItem(item){
+  if(player.weapon && player.weapon.bonus) applyStatPatch(player.weapon.bonus, -1);
+  const bonusTemplate = inferWeaponBonus(item);
+  const equipped = {
+    name: item.name,
+    tier: item.tier || item.rank || '未知',
+    bonusTemplate,
+    bonus: resolveBonusTemplate(bonusTemplate)
+  };
+  applyStatPatch(equipped.bonus, 1);
+  player.weapon = equipped;
+  return equipped;
+}
+function equipArtifactItem(item){
+  if(state.equippedArtifact && state.equippedArtifact.bonus) applyStatPatch(state.equippedArtifact.bonus, -1);
+  const bonusTemplate = inferArtifactBonus(item);
+  const equipped = {
+    name: item.name,
+    tier: item.tier || item.rank || '未知',
+    bonusTemplate,
+    bonus: resolveBonusTemplate(bonusTemplate)
+  };
+  applyStatPatch(equipped.bonus, 1);
+  state.equippedArtifact = equipped;
+  return equipped;
+}
+function ensureEquipmentMetadata(){
+  if(player?.weapon){
+    player.weapon.bonusTemplate = normalizeCritBonusTemplate(player.weapon.bonusTemplate || inferWeaponBonus(player.weapon));
+    if(!player.weapon.bonus) player.weapon.bonus = resolveBonusTemplate(player.weapon.bonusTemplate);
+  }
+  if(state?.equippedArtifact){
+    state.equippedArtifact.bonusTemplate = normalizeCritBonusTemplate(state.equippedArtifact.bonusTemplate || inferArtifactBonus(state.equippedArtifact));
+    if(!state.equippedArtifact.bonus) state.equippedArtifact.bonus = resolveBonusTemplate(state.equippedArtifact.bonusTemplate);
+  }
+}
 
 function realmStaminaConfig(realm){
   const table = {
@@ -556,12 +1349,49 @@ function spendStamina(cost, actionName){
   player.stamina -= cost;
   return true;
 }
+function canSpendStamina(cost, actionName){
+  syncStaminaByTime();
+  if((player.stamina ?? 0) < cost){
+    const cfg = realmStaminaConfig(player.realm);
+    addLog(`${actionName}失败：体力不足。当前体力 ${player.stamina}/${player.maxStamina}，每分钟恢复 ${cfg.regenPerMin} 点。`);
+    renderAll();
+    return false;
+  }
+  return true;
+}
 function explorationBenchmarkExp(realm, locationSpirit){
   const spirit = locationSpirit || 35;
   const upperRootCultivate = 1.0; // 上品修士修炼倍率基准
   const basePerMeditate = Math.max(2, Math.floor(spirit * 0.22));
   const oneMeditate = Math.max(1, Math.floor(basePerMeditate * (realmCultivationFactor(realm) + upperRootCultivate - 1)));
   return oneMeditate * 10;
+}
+function encounterPercentReward(tier, bias = 'balanced'){
+  const percentMap = {
+    '凡品': 0.05,
+    '中品': 0.15,
+    '上品': 0.25,
+    '极品': 0.40,
+    '仙品': 0.60,
+    '神品': 0.80
+  };
+  const biasMult = bias === 'safe' ? 0.95 : bias === 'greedy' ? 1.06 : bias === 'insight' ? 1.03 : 1;
+  const minor = minorRealmInfo(player.exp, player.realm);
+  const span = Math.max(20, minor.nextStageNeed - minor.stageNeed);
+  const basePercent = (percentMap[tier] || 0.05) * biasMult;
+  const variance = 0.92 + Math.random() * 0.16;
+  const expGain = Math.max(1, Math.floor(span * basePercent * variance));
+  const stoneBase = {
+    '凡品': 0.05,
+    '中品': 0.12,
+    '上品': 0.20,
+    '极品': 0.30,
+    '仙品': 0.45,
+    '神品': 0.60
+  };
+  const stoneVariance = 0.9 + Math.random() * 0.2;
+  const stoneGain = Math.max(3, Math.floor(span * (stoneBase[tier] || 0.05) * (bias === 'harvest' ? 1.08 : bias === 'greedy' ? 1.02 : 1) * stoneVariance));
+  return { expGain, stoneGain };
 }
 function realmCultivationFactor(realm){
   const table = {
@@ -571,7 +1401,7 @@ function realmCultivationFactor(realm){
   return table[realm] || 1;
 }
 function ensureLocation(){
-  if(!state.currentLocation) state.currentLocation = {name:'云隐洞府', spirit:35, maxSpirit:35};
+  if(!state.currentLocation) state.currentLocation = {name:'云隐洞府', spirit:35, maxSpirit:35, mode:'洞府'};
   if(state.currentLocation.spirit > state.currentLocation.maxSpirit) state.currentLocation.spirit = state.currentLocation.maxSpirit;
 }
 function consumeEnvironmentSpirit(amount, actionName){
@@ -589,13 +1419,346 @@ function restoreLocationSpirit(){
   const regen = Math.max(1, Math.floor(state.currentLocation.maxSpirit * 0.08));
   state.currentLocation.spirit = Math.min(state.currentLocation.maxSpirit, state.currentLocation.spirit + regen);
 }
+function spiritSceneBase(realm){
+  const table = {
+    '炼气': 70,'筑基': 110,'金丹': 170,'元婴': 250,'化神': 360,'炼虚': 520,
+    '合体': 760,'大乘': 1080,'渡劫': 1500,'真仙': 2100,'仙王': 3000,'仙帝': 4200,'道祖': 6000
+  };
+  return table[realm] || 70;
+}
+function choiceBias(choice){
+  const c = String(choice || '');
+  if(/谨慎|观察|稳步|稳固|静观|拒绝/.test(c)) return 'safe';
+  if(/直接|立即|强行|血祭|逆转|进入/.test(c)) return 'greedy';
+  if(/参悟|叩问|汲取|引导|接受|催动/.test(c)) return 'insight';
+  if(/搜寻|收集|挖掘/.test(c)) return 'harvest';
+  return 'balanced';
+}
+function generateSpiritScene(){
+  const name = `${rand(spiritScenePrefixes)}${rand(spiritSceneSuffixes)}`;
+  const base = spiritSceneBase(player.realm);
+  const spirit = Math.floor(base * (1 + player.explorationLv * 0.06 + Math.random() * 0.35));
+  const floors = randomInt(3, 9) + Math.min(12, Math.floor(player.explorationLv / 2));
+  return {name, type:'寻灵副本', danger:Math.max(2, realmIndexFromName(player.realm) + 1), reward:rand(spiritSceneRewards), spirit, floors};
+}
+function autoExploreSpiritScene(){
+  if(!canSpendStamina(5, '自动寻灵')) return;
+  spendStamina(5, '自动寻灵');
+  const scene = generateSpiritScene();
+  state.currentLocation = {
+    name:scene.name,
+    spirit:scene.spirit,
+    maxSpirit:scene.spirit,
+    mode:'灵地',
+    reward:scene.reward,
+    floors:scene.floors
+  };
+  state.secretRealm = null;
+  grantStats({explores:1});
+  addLog(`你施展寻灵之法，觅得高灵气修炼地【${scene.name}】。此地环境灵气 ${scene.spirit}，适合在此打坐修炼，也可继续深入探索。灵地偏向：${scene.reward}。`);
+  showToast(`觅得灵地【${scene.name}】｜灵气 ${scene.spirit}`, 'success', '自动寻灵');
+  saveGame(); renderAll();
+}
+function enterCurrentSpiritLand(){
+  ensureLocation();
+  if(!state.currentLocation || state.currentLocation.mode !== '灵地'){
+    addLog('当前没有可深入探索的灵地。');
+    renderAll();
+    return;
+  }
+  state.secretRealm = {
+    name:state.currentLocation.name,
+    floor:1,
+    floors:state.currentLocation.floors || randomInt(4, 8),
+    reward:state.currentLocation.reward || '灵气机缘'
+  };
+  state.currentLocation.mode = '秘境';
+  grantStats({realms:1});
+  addLog(`你顺着灵气脉络深入【${state.currentLocation.name}】，正式进入此地探索。`);
+  showToast(`进入【${state.currentLocation.name}】`, 'info', '灵地探索');
+  saveGame(); renderAll();
+}
 function qualityClass(name){
-  if(name.includes('混沌') || name.includes('神品') || name.includes('神')) return 'rarity-gold';
-  if(name.includes('仙品') || name.includes('仙灵根') || name.includes('仙') || name.includes('雷灵根') || name.includes('冰灵根') || name.includes('风灵根')) return 'rarity-orange';
-  if(name.includes('极品') || name.includes('天灵根')) return 'rarity-purple';
-  if(name.includes('上品')) return 'rarity-blue';
-  if(name.includes('中品')) return 'rarity-green';
+  const text = String(name || '');
+  if(/混沌开天经|大道源流录/.test(text)) return 'rarity-gold';
+  if(/太虚仙经|长生道藏/.test(text)) return 'rarity-orange';
+  if(/九转金身经|万象剑典/.test(text)) return 'rarity-purple';
+  if(/太玄真解|周天星经/.test(text)) return 'rarity-blue';
+  if(/凝气心经|铁骨诀/.test(text)) return 'rarity-green';
+  if(/吐纳诀|养元篇/.test(text)) return 'rarity-gray';
+  if(text.includes('混沌至宝') || text.includes('神品') || text.includes('神器')) return 'rarity-gold';
+  if(text.includes('仙品') || text.includes('仙器') || text.includes('先天至宝') || text.includes('仙灵根')) return 'rarity-orange';
+  if(text.includes('极品至宝') || text.includes('极品') || text.includes('至宝') || text.includes('天灵根')) return 'rarity-purple';
+  if(text.includes('上品') || text.includes('法宝')) return 'rarity-blue';
+  if(text.includes('中品') || text.includes('灵器')) return 'rarity-green';
+  if(text.includes('凡品') || text.includes('法器')) return 'rarity-gray';
+  if(text.includes('雷灵根') || text.includes('冰灵根') || text.includes('风灵根')) return 'rarity-orange';
   return 'rarity-gray';
+}
+function realmAccentStyle(realmName){
+  const palettes = [
+    {color:'#b45b5b', shadow:'rgba(180,91,91,.22)'},
+    {color:'#4f7c78', shadow:'rgba(79,124,120,.24)'},
+    {color:'#8a7398', shadow:'rgba(138,115,152,.24)'},
+    {color:'#b78a46', shadow:'rgba(183,138,70,.24)'},
+    {color:'#5f7d9e', shadow:'rgba(95,125,158,.24)'},
+    {color:'#9a6b52', shadow:'rgba(154,107,82,.24)'}
+  ];
+  const text = String(realmName || '');
+  let hash = 0;
+  for(let i = 0; i < text.length; i++) hash = ((hash * 31) + text.charCodeAt(i)) >>> 0;
+  return palettes[hash % palettes.length];
+}
+function treasureDisplayName(item){
+  if(!item) return '';
+  const rank = String(item.rank || item.tier || '');
+  const rawName = String(item.name || '');
+  const pureName = rawName.replace(/^混沌至宝·/, '');
+  if(rank.includes('混沌至宝') || rawName.includes('混沌至宝')) return `混沌至宝·${pureName}`;
+  if(rank.includes('先天至宝') || rank.includes('仙品')) return `先天至宝·${pureName}`;
+  if(rank.includes('极品至宝') || rank.includes('极品')) return `至宝·${pureName}`;
+  return rawName;
+}
+function spiritRootDisplay(root){
+  if(!root) return '';
+  const tier = String(root.tier || '');
+  return /凡品|中品|上品/.test(tier) ? `${tier} ${root.name || ''}` : (root.name || '');
+}
+function traitDisplay(trait){
+  if(!trait) return '';
+  const tier = String(trait.tier || '');
+  return /凡品|中品|上品/.test(tier) ? `${tier}·${trait.name}` : trait.name;
+}
+function pillDisplayName(item){
+  if(!item) return '';
+  const tier = String(item.tier || '');
+  const rawName = String(item.name || '');
+  const pureName = rawName.replace(/^(凡品|中品|上品)丹药·/, '');
+  return /凡品|中品|上品/.test(tier) ? `${tier}丹药·${pureName}` : pureName;
+}
+function manualDisplayName(item){
+  if(!item) return '';
+  const tier = String(item.tier || '');
+  const rawName = String(item.name || '');
+  const pureName = rawName.replace(/^(凡品|中品|上品)功法·/, '');
+  return /凡品|中品|上品/.test(tier) ? `${tier}功法·${pureName}` : pureName;
+}
+function rewardDisplayName(item){
+  if(!item) return '';
+  if(item.type === 'treasure' || item.type === 'chaosTreasure') return treasureDisplayName(item);
+  if(item.type === 'staminaPill' || item.type === 'pill') return pillDisplayName(item);
+  if(item.type === 'manual') return manualDisplayName(item);
+  return item.name || '';
+}
+function randomManualByTier(tier){
+  const pool = manualPool
+    .filter(x => x.tier === tier)
+    .filter(x => !('exploration' in (x.bonus || {})) && !('alchemy' in (x.bonus || {})) && !('forge' in (x.bonus || {})));
+  return structuredClone(rand(pool.length ? pool : manualPool.filter(x => x.tier === '凡品')));
+}
+function normalizeManualItem(item){
+  if(!item || item.type !== 'manual') return item;
+  const latest = manualPool.find(x => x.name === item.name);
+  if(!latest) return item;
+  return {
+    ...item,
+    tier: latest.tier,
+    style: latest.style,
+    bonus: structuredClone(latest.bonus)
+  };
+}
+function normalizeBagItems(){
+  if(!state?.bag?.length) return;
+  state.bag = state.bag.map(item => normalizeManualItem(item));
+}
+function applyManualBonus(bonus){
+  if(!bonus) return;
+  if(bonus.damagePct) player.damagePct = (player.damagePct || 0) + bonus.damagePct;
+  if(bonus.damageReducePct) player.damageReducePct = (player.damageReducePct || 0) + bonus.damageReducePct;
+  if(bonus.critResistPct) player.critResistPct = (player.critResistPct || 0) + bonus.critResistPct;
+  if(bonus.critRatePct) player.manualCritRatePct = (player.manualCritRatePct || 0) + bonus.critRatePct;
+  if(bonus.critDamagePct) player.manualCritDamagePct = (player.manualCritDamagePct || 0) + bonus.critDamagePct;
+  if(bonus.cultivatePct) player.cultivateBonus = (player.cultivateBonus || 0) + bonus.cultivatePct;
+}
+function learnManualItem(item){
+  state.learnedManuals = state.learnedManuals || [];
+  if(state.learnedManuals.includes(item.name)){
+    return false;
+  }
+  state.learnedManuals.push(item.name);
+  applyManualBonus(item.bonus || {});
+  return true;
+}
+function learnedManualObjects(){
+  const names = state?.learnedManuals || [];
+  return names.map(name => manualPool.find(x => x.name === name)).filter(Boolean);
+}
+function manualStyleText(item){
+  if(!item?.style) return '';
+  const map = {
+    '单体爆发':'擅长点杀强敌，爆发更高。',
+    '群伤':'更适合连续清怪，消耗更低。',
+    'Boss特攻':'对世界Boss与强敌压制更强。',
+    '清怪特攻':'对妖兽与野外敌人收益更高。'
+  };
+  return `${item.style}｜${map[item.style] || ''}`;
+}
+function manualCastProfile(targetType = 'monster'){
+  const manuals = learnedManualObjects();
+  if(!manuals.length){
+    return {qiCost:0, damageMult:1, critRateBonus:0, critDamageBonus:0, manualName:'', style:'', expBonus:0, stoneBonus:0};
+  }
+  const tierCost = {'凡品':2,'中品':4,'上品':6,'极品':8,'仙品':10,'神品':12};
+  const scored = manuals.map(item => {
+    const styleCfg = manualStyleConfig[item.style]?.[targetType] || {};
+    const bonus = item.bonus || {};
+    const score = (bonus.damagePct || 0)
+      + ((bonus.critRatePct || 0) * 0.7)
+      + ((bonus.critDamagePct || 0) * 0.6)
+      + ((bonus.critResistPct || 0) * 0.35)
+      + ((bonus.damageReducePct || 0) * 0.45)
+      + (styleCfg.damageBonus || 0)
+      + ((bonus.cultivatePct || 0) * 0.25)
+      + ((tierCost[item.tier] || 0) * 0.01);
+    return {item, score, styleCfg};
+  });
+  const chosen = scored.reduce((best, cur) => cur.score > best.score ? cur : best, scored[0]);
+  const styleCfg = chosen.styleCfg || {};
+  let damageMult = 1 + (player.damagePct || 0);
+  damageMult += styleCfg.damageBonus || 0;
+  const baseQiCost = Math.max(2, tierCost[chosen.item.tier] || 2);
+  const qiCost = Math.max(1, Math.round(baseQiCost * (styleCfg.qiFactor || 1)));
+  return {
+    qiCost,
+    damageMult,
+    critRateBonus: styleCfg.critRateBonus || 0,
+    critDamageBonus: styleCfg.critDamageBonus || 0,
+    manualName: chosen.item.name,
+    style: chosen.item.style || '',
+    expBonus: styleCfg.expBonus || 0,
+    stoneBonus: styleCfg.stoneBonus || 0
+  };
+}
+function encounterExtraDrop(tier, bias){
+  const pickByWeight = (options) => {
+    const total = options.reduce((sum, opt) => sum + opt.weight, 0);
+    let roll = Math.random() * total;
+    for(const opt of options){
+      roll -= opt.weight;
+      if(roll <= 0) return opt.value;
+    }
+    return options[options.length - 1].value;
+  };
+  if(tier === '凡品' || tier === '中品' || tier === '上品'){
+    const equipMap = {
+      '凡品': {type:'artifact', name:'凡品法器·散修短刃', tier:'凡品法器'},
+      '中品': {type:'artifact', name:'中品灵器·流光佩', tier:'中品灵器'},
+      '上品': {type:'artifact', name:'上品法宝·青霄环', tier:'上品法宝'}
+    };
+    const pillMap = {
+      '凡品': {type:'staminaPill', name:'回元散', staminaPercent:0.10, tier:'凡品'},
+      '中品': {type:'staminaPill', name:'养元丹', staminaPercent:0.20, tier:'中品'},
+      '上品': {type:'staminaPill', name:'生生造化丹', staminaPercent:0.30, tier:'上品'}
+    };
+    const dropType = pickByWeight([
+      {value:'equip', weight:(tier === '上品' ? 42 : tier === '中品' ? 32 : 22) + (bias === 'greedy' ? 14 : bias === 'harvest' ? 6 : 0)},
+      {value:'pill', weight:(tier === '上品' ? 30 : tier === '中品' ? 24 : 18) + (bias === 'safe' ? 10 : bias === 'insight' ? 8 : 0)},
+      {value:'none', weight:100}
+    ]);
+    if(dropType === 'equip') return structuredClone(equipMap[tier]);
+    if(dropType === 'pill') return structuredClone(pillMap[tier]);
+    return null;
+  }
+  if(tier === '极品' || tier === '仙品'){
+    const treasure = rand(divineArtifacts.filter(x => tier === '极品' ? x.rank.includes('极品') || x.rank.includes('仙品') : true));
+    const pill = tier === '仙品'
+      ? {type:'staminaPill', name:'九转回天丹', staminaPercent:0.80, tier:'仙品'}
+      : {type:'staminaPill', name:'玄元续命丹', staminaPercent:0.50, tier:'极品'};
+    const dropType = pickByWeight([
+      {value:'treasure', weight:(tier === '仙品' ? 56 : 38) + (bias === 'greedy' ? 16 : bias === 'insight' ? 10 : 0)},
+      {value:'pill', weight:(tier === '仙品' ? 18 : 14) + (bias === 'safe' ? 8 : 0)},
+      {value:'none', weight:100}
+    ]);
+    if(dropType === 'treasure') return {type:'treasure', item: structuredClone(treasure)};
+    if(dropType === 'pill') return structuredClone(pill);
+    return null;
+  }
+  if(tier === '神品'){
+    const chaos = structuredClone(rand(chaosTreasures));
+    const pill = {type:'staminaPill', name:'混沌回天丹', staminaPercent:1.00, tier:'神品'};
+    const dropType = pickByWeight([
+      {value:'chaos', weight:70 + (bias === 'greedy' ? 14 : bias === 'insight' ? 8 : 0)},
+      {value:'pill', weight:12 + (bias === 'safe' ? 8 : 0)},
+      {value:'none', weight:100}
+    ]);
+    if(dropType === 'chaos') return {type:'chaosTreasure', item: chaos};
+    if(dropType === 'pill') return structuredClone(pill);
+    return null;
+  }
+  return null;
+}
+function grantExploreBaseRewards(scene, mult = 1){
+  const spiritBase = scene?.spirit || state.currentLocation?.maxSpirit || 35;
+  const benchBase = explorationBenchmarkExp(player.realm, spiritBase);
+  const expGain = Math.max(1, Math.floor(benchBase * 0.08 * mult));
+  const stoneGain = Math.max(2, Math.floor((8 + player.explorationLv * 3 + spiritBase * 0.08) * mult));
+  const oldRealm = player.realm;
+  player.exp += expGain;
+  player.realm = realmFromExp(player.exp);
+  if(player.realm !== oldRealm) applyRealmGrowth(oldRealm, player.realm);
+  player.spiritStone += stoneGain;
+  let pill = null;
+  let manual = null;
+  const pillRate = Math.min(0.12 + player.explorationLv * 0.015, 0.30) * mult;
+  if(Math.random() < pillRate){
+    if(spiritBase >= 180 || mult >= 1.3){
+      pill = {type:'staminaPill', name:'生生造化丹', staminaPercent:0.30, tier:'上品'};
+    }else if(spiritBase >= 90){
+      pill = {type:'staminaPill', name:'养元丹', staminaPercent:0.20, tier:'中品'};
+    }else{
+      pill = {type:'staminaPill', name:'回元散', staminaPercent:0.10, tier:'凡品'};
+    }
+    state.bag.push(pill);
+  }
+  const manualRate = Math.min(0.03 + spiritBase * 0.00012 + player.explorationLv * 0.004, 0.18) * mult;
+  if(Math.random() < manualRate){
+    const manualTier = spiritBase >= 220 ? rand(['上品','极品']) : spiritBase >= 110 ? rand(['中品','上品']) : rand(['凡品','中品']);
+    manual = randomManualByTier(manualTier);
+    state.bag.push({type:'manual', ...manual});
+  }
+  return {expGain, stoneGain, pill, manual};
+}
+function safeNumber(value, fallback){
+  return Number.isFinite(Number(value)) ? Number(value) : fallback;
+}
+function normalizePlayerStats(){
+  if(!player) return;
+  player.maxHp = Math.max(1, safeNumber(player.maxHp, 100));
+  player.hp = Math.max(0, Math.min(player.maxHp, safeNumber(player.hp, player.maxHp)));
+  player.maxQi = Math.max(1, safeNumber(player.maxQi, 20));
+  player.qi = Math.max(0, Math.min(player.maxQi, safeNumber(player.qi, player.maxQi)));
+  player.atk = Math.max(1, safeNumber(player.atk, 8));
+  player.def = Math.max(0, safeNumber(player.def, 2));
+  player.speed = Math.max(1, safeNumber(player.speed, 100));
+  player.critRate = Math.max(0, safeNumber(player.critRate, 5));
+  player.critDamage = Math.max(100, safeNumber(player.critDamage, 150));
+  player.manualCritRatePct = safeNumber(player.manualCritRatePct, 0);
+  player.manualCritDamagePct = safeNumber(player.manualCritDamagePct, 0);
+  player.critResistPct = safeNumber(player.critResistPct, 0);
+  player.fate = Math.max(0, safeNumber(player.fate, 0));
+  player.spiritStone = Math.max(0, safeNumber(player.spiritStone, 0));
+  player.exp = Math.max(0, safeNumber(player.exp, 0));
+  player.cultivateRate = Math.max(0, safeNumber(player.cultivateRate, 1));
+  player.cultivateBonus = safeNumber(player.cultivateBonus, 0);
+  player.damagePct = safeNumber(player.damagePct, 0);
+  player.damageReducePct = safeNumber(player.damageReducePct, 0);
+  player.skillDamagePct = safeNumber(player.skillDamagePct, 0);
+  player.monsterDamagePct = safeNumber(player.monsterDamagePct, 0);
+  player.bossDamagePct = safeNumber(player.bossDamagePct, 0);
+  player.explorationLv = Math.max(1, safeNumber(player.explorationLv, 1));
+  player.alchemyLv = Math.max(1, safeNumber(player.alchemyLv, 1));
+  player.forgeLv = Math.max(1, safeNumber(player.forgeLv, 1));
+  player.lifespan = Math.max(1, safeNumber(player.lifespan, 80));
 }
 
 function generateSpiritualRoot(){
@@ -664,8 +1827,8 @@ function renderStartPreview(){
   if(!startData) return;
   const root = startData.root;
   const traits = startData.traits;
-  document.getElementById('startRoot').innerHTML = `你的灵根为：<span class="${qualityClass(root.name + root.tier)}">${root.tier} ${root.name}</span>`;
-  document.getElementById('startTraits').innerHTML = traits.map(t=>`<span class="${qualityClass(t.tier)}">${t.tier}</span>·${t.name}${t.synergy ? '（契合）' : ''}`).join('<br>');
+  document.getElementById('startRoot').innerHTML = `你的灵根为：<span class="${qualityClass(root.name + root.tier)}">${spiritRootDisplay(root)}</span>`;
+  document.getElementById('startTraits').innerHTML = traits.map(t=>`<span class="${qualityClass(t.tier)}">${traitDisplay(t)}</span>${t.synergy ? '（契合）' : ''}`).join('<br>');
 }
 function undoStartRoll(){
   if(!previousStartData){
@@ -684,26 +1847,27 @@ function previewStartDetail(){
     return;
   }
   const root = startData.root;
-  const traits = startData.traits.map(t=>`${t.tier}·${t.name}${t.synergy ? '（契合：' + (t.synergy.desc || '联动') + '）' : ''}`).join('\n');
-  alert(`当前灵根：${root.tier} ${root.name}\n\n当前词条：\n${traits}`);
+  const traits = startData.traits.map(t=>`${traitDisplay(t)}${t.synergy ? '（契合：' + (t.synergy.desc || '联动') + '）' : ''}`).join('\n');
+  alert(`当前灵根：${spiritRootDisplay(root)}\n\n当前词条：\n${traits}`);
 }
 function initNewGame(){
   player = {
-    name:'无名散修', hp:100, maxHp:100, qi:20, maxQi:20, atk:8, def:2, exp:0, spiritStone:30,
+    name:'无名散修', hp:100, maxHp:100, qi:20, maxQi:20, atk:8, def:2, speed:100, critRate:5, critDamage:150, exp:0, spiritStone:30,
     realmIndex:0,
     realm:'炼气', sect:'云隐小宗', contribution:0, fate:0, lifespan:80, alchemyLv:1, forgeLv:1, explorationLv:1,
     stamina:300, maxStamina:300, lastStaminaTs:Date.now(),
     caveLevel:1, reincarnation:0, ascension:0, path:'未定', weapon:null, natalArtifact:'本命飞剑', immortalRealm:null,
     spiritRoot:startData.root, traits:startData.traits
   };
+  normalizePlayerStats();
   state = {
     bag:[
       {type:'herb',name:'凝露草',rarity:'凡',qi:2},
       {type:'herb',name:'赤阳花',rarity:'黄',qi:4},
       {type:'ore',name:'黑铁',rarity:'凡',power:2},
-      {type:'manual',name:'吐纳诀'}
+      {type:'manual',...structuredClone(manualPool[0])}
     ],
-    logs:[], currentMonster:null, encounter:null, artifacts:[], worldBuff:{encounterBonus:0,luckyAura:0},
+    logs:[], currentMonster:null, encounter:null, artifacts:[], learnedManuals:[], worldBuff:{encounterBonus:0,luckyAura:0},
     stats:{herbs:0,kills:0,pills:0,explores:0,forge:0,encounters:0,realms:0},
     quests:[
       {id:1,name:'宗门采药',desc:'收集 3 份灵草',stat:'herbs',need:3,done:false,claimed:false},
@@ -725,12 +1889,12 @@ function initNewGame(){
       {name:'回元散', type:'staminaPill', staminaPercent:0.10, tier:'凡品', price:60},
       {name:'玄元续命丹', type:'staminaPill', staminaPercent:0.50, tier:'极品', price:1200}
     ],
-    currentLocation:{name:'云隐洞府', spirit:35, maxSpirit:35}
+    currentLocation:{name:'云隐洞府', spirit:35, maxSpirit:35, mode:'洞府'}
   };
   applyInitialBonuses();
   player.realmIndex = realmIndexFromName(player.realm);
-  addLog(`你踏入修真界，当前资质为【${player.spiritRoot.tier} ${player.spiritRoot.name}】。`);
-  addLog(`你的三条天命词条为：${player.traits.map(t=>`${t.tier}·${t.name}`).join('、')}。`);
+  addLog(`你踏入修真界，当前资质为【${spiritRootDisplay(player.spiritRoot)}】。`);
+  addLog(`你的三条天命词条为：${player.traits.map(t=>traitDisplay(t)).join('、')}。`);
 }
 
 function applyInitialBonuses(){
@@ -769,6 +1933,7 @@ function beginGame(){
   initNewGame();
   document.getElementById('startPage').classList.remove('active');
   document.getElementById('gamePage').classList.add('active');
+  document.getElementById('bottomNav').classList.remove('hidden');
   saveGame();
   renderAll();
 }
@@ -776,6 +1941,7 @@ function beginGame(){
 function backToStart(){
   document.getElementById('gamePage').classList.remove('active');
   document.getElementById('startPage').classList.add('active');
+  document.getElementById('bottomNav').classList.add('hidden');
 }
 
 function addLog(text){
@@ -783,14 +1949,40 @@ function addLog(text){
   state.logs = state.logs.slice(0,120);
   renderResultLog();
 }
+function toastLabel(type){
+  if(type === 'success') return '操作成功';
+  if(type === 'warn') return '提示';
+  if(type === 'error') return '操作失败';
+  return '消息';
+}
+function showToast(text, type = 'info', title = ''){
+  const wrap = document.getElementById('toastWrap');
+  if(!wrap) return;
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<span class="toast-title">${title || toastLabel(type)}</span><span class="toast-body">${text}</span>`;
+  wrap.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-6px)';
+    toast.style.transition = 'opacity .18s ease, transform .18s ease';
+    setTimeout(() => toast.remove(), 180);
+  }, 1800);
+}
 function gainExp(base){
   const extra = player.cultivateBonus || 0;
-  const gain = Math.max(1, Math.floor(base * (player.cultivateRate + extra)));
   const oldRealm = player.realm;
+  const oldMinor = minorRealmInfo(player.exp, oldRealm).label;
+  const gain = Math.max(1, Math.floor(base * (player.cultivateRate + extra)));
   player.exp += gain;
   player.realm = realmFromExp(player.exp);
   if(player.realm !== oldRealm){
     applyRealmGrowth(oldRealm, player.realm);
+  }else{
+    const newMinor = minorRealmInfo(player.exp, player.realm).label;
+    if(newMinor !== oldMinor){
+      addLog(`你稳固修为，已踏入【${newMinor}】。`);
+    }
   }
   return gain;
 }
@@ -800,10 +1992,11 @@ function grantStats(patch){
 }
 
 function meditate(){
-  if(!spendStamina(5, '修炼')) return;
+  if(!canSpendStamina(5, '修炼')) return;
   ensureLocation();
   const spiritCost = Math.max(6, Math.floor(state.currentLocation.maxSpirit * 0.12));
   if(!consumeEnvironmentSpirit(spiritCost, '修炼')) return;
+  spendStamina(5, '修炼');
   const base = Math.max(2, Math.floor(state.currentLocation.maxSpirit * 0.22));
   const gain = gainExp(Math.floor(base * realmCultivationFactor(player.realm)));
   player.lifespan = Math.max(1, player.lifespan-0.05);
@@ -811,32 +2004,50 @@ function meditate(){
   saveGame(); renderAll();
 }
 function gatherHerb(){
-  if(!spendStamina(5, '采药')) return;
+  if(!canSpendStamina(5, '采药')) return;
+  spendStamina(5, '采药');
   const herb=rand(herbPool);
   state.bag.push({type:'herb',...herb});
   player.qi = Math.max(0, player.qi-2);
   grantStats({herbs:1});
-  addLog(`你采得灵草【${herb.name}】。`);
+  addLog(`${rand(craftNarratives.gatherHerb)} 你采得灵草【${herb.name}】。`);
   saveGame(); renderAll();
 }
 function mineOre(){
-  if(!spendStamina(5, '采矿')) return;
+  if(!canSpendStamina(5, '采矿')) return;
+  spendStamina(5, '采矿');
   const ore=rand(orePool);
   state.bag.push({type:'ore',...ore});
   player.qi = Math.max(0, player.qi-3);
-  addLog(`你采得矿材【${ore.name}】。`);
+  addLog(`${rand(craftNarratives.mineOre)} 你采得矿材【${ore.name}】。`);
   saveGame(); renderAll();
 }
 
 function triggerEncounter(sourceMap){
-  const luck = player.fate * 0.002 + player.explorationLv * 0.004 + state.worldBuff.encounterBonus + player.encounterRateBonus;
+  const luck = player.fate * 0.0012 + player.explorationLv * 0.002 + state.worldBuff.encounterBonus * 0.8 + player.encounterRateBonus;
+  const isSecretRealm = sourceMap?.type === '秘境';
   const roll = Math.random();
   let tier = '凡品';
-  if(roll < Math.min(0.003 + luck * 0.08, 0.01)) tier = '神品';
-  else if(roll < Math.min(0.012 + luck * 0.12, 0.03)) tier = '仙品';
-  else if(roll < Math.min(0.045 + luck * 0.2, 0.10)) tier = '极品';
-  else if(roll < 0.22 + luck * 0.25) tier = '上品';
-  else if(roll < 0.48 + luck * 0.35) tier = '中品';
+  const godRate = isSecretRealm
+    ? Math.min(0.024 + luck * 0.030, 0.140)
+    : Math.min(0.0015 + luck * 0.008, 0.010);
+  const immortalRate = isSecretRealm
+    ? Math.min(0.080 + luck * 0.050, 0.260)
+    : Math.min(0.0060 + luck * 0.014, 0.030);
+  const supremeRate = isSecretRealm
+    ? Math.min(0.180 + luck * 0.080, 0.380)
+    : Math.min(0.028 + luck * 0.030, 0.090);
+  const highRate = isSecretRealm
+    ? Math.min(0.300 + luck * 0.090, 0.500)
+    : Math.min(0.090 + luck * 0.070, 0.220);
+  const midRate = isSecretRealm
+    ? Math.min(0.260 + luck * 0.090, 0.420)
+    : Math.min(0.240 + luck * 0.110, 0.420);
+  if(roll < godRate) tier = '神品';
+  else if(roll < godRate + immortalRate) tier = '仙品';
+  else if(roll < godRate + immortalRate + supremeRate) tier = '极品';
+  else if(roll < godRate + immortalRate + supremeRate + highRate) tier = '上品';
+  else if(roll < godRate + immortalRate + supremeRate + highRate + midRate) tier = '中品';
   const pool = encounterTemplates.filter(x => x.tier === tier);
   const tpl = rand(pool.length ? pool : encounterTemplates.filter(x => x.tier === '凡品'));
   state.encounter = {...tpl, source:sourceMap.name};
@@ -846,9 +2057,8 @@ function triggerEncounter(sourceMap){
 function resolveEncounter(choice){
   if(!state.encounter) return;
   const tier = state.encounter.tier;
+  const bias = choiceBias(choice);
   if(tier === '凡品' || tier === '中品' || tier === '上品'){
-    const stoneMap = { '凡品': 12, '中品': 28, '上品': 60 };
-    const expMap = { '凡品': 8, '中品': 18, '上品': 36 };
     const staminaPillMap = {
       '凡品': {name:'回元散', staminaPercent:0.10, tier:'凡品'},
       '中品': {name:'养元丹', staminaPercent:0.20, tier:'中品'},
@@ -859,17 +2069,16 @@ function resolveEncounter(choice){
       '中品': {name:'中品灵器·流光佩', tier:'中品灵器'},
       '上品': {name:'上品法宝·青霄环', tier:'上品法宝'}
     };
-    const benchBase = explorationBenchmarkExp(player.realm, state.currentLocation ? state.currentLocation.maxSpirit : 35);
-    const tierRatio = { '凡品':0.25, '中品':0.45, '上品':0.75 }[tier] || 0.25;
-    const gain = Math.max(1, Math.floor(benchBase * tierRatio));
+    const { expGain: gain, stoneGain } = encounterPercentReward(tier, bias);
     const oldRealm = player.realm;
     player.exp += gain;
     player.realm = realmFromExp(player.exp);
     if(player.realm !== oldRealm) applyRealmGrowth(oldRealm, player.realm);
-    player.spiritStone += stoneMap[tier];
-    const gotPill = Math.random() < (tier === '上品' ? 0.45 : tier === '中品' ? 0.30 : 0.18);
-    const gotEquip = Math.random() < (tier === '上品' ? 0.55 : tier === '中品' ? 0.35 : 0.2);
-    const rewards = [`修为 +${gain}`, `灵石 +${stoneMap[tier]}`];
+    player.spiritStone += stoneGain;
+    const gotPill = Math.random() < ((tier === '上品' ? 0.45 : tier === '中品' ? 0.30 : 0.18) + (bias === 'safe' ? 0.12 : bias === 'insight' ? 0.08 : 0));
+    const gotEquip = Math.random() < ((tier === '上品' ? 0.55 : tier === '中品' ? 0.35 : 0.2) + (bias === 'greedy' ? 0.15 : bias === 'harvest' ? 0.05 : 0));
+    const gotManual = Math.random() < ((tier === '上品' ? 0.32 : tier === '中品' ? 0.20 : 0.10) + (bias === 'insight' ? 0.18 : 0));
+    const rewards = [`修为 +${gain}`, `灵石 +${stoneGain}`];
     if(gotEquip){
       state.bag.push({type:'artifact', ...equipMap[tier]});
       rewards.push(`【${equipMap[tier].name}】`);
@@ -878,56 +2087,78 @@ function resolveEncounter(choice){
       state.bag.push({type:'staminaPill', ...staminaPillMap[tier]});
       rewards.push(`【${staminaPillMap[tier].name}】`);
     }
+    if(gotManual){
+      const manual = randomManualByTier(tier);
+      state.bag.push({type:'manual', ...manual});
+      rewards.push(`【${manual.name}】`);
+    }
     addLog(`你选择【${choice}】，获得${tier}奇遇奖励：${rewards.join('，')}。`);
   }else if(tier === '极品' || tier === '仙品'){
-    const treasureChance = tier === '极品' ? 0.22 : 0.42;
+    const treasureChance = (tier === '极品' ? 0.22 : 0.42) + (bias === 'greedy' ? 0.10 : bias === 'safe' ? -0.05 : bias === 'insight' ? 0.06 : 0);
+    const { expGain: gain, stoneGain } = encounterPercentReward(tier, bias);
     if(Math.random() < treasureChance){
       const art = rand(divineArtifacts.filter(x => tier === '极品' ? x.rank.includes('极品') || x.rank.includes('仙品') : true));
       state.artifacts.push(art);
       state.bag.push({type:'treasure', name:art.name, tier:art.rank});
+      const oldRealm = player.realm;
+      player.exp += gain;
+      player.realm = realmFromExp(player.exp);
+      if(player.realm !== oldRealm) applyRealmGrowth(oldRealm, player.realm);
+      player.spiritStone += stoneGain;
       if(art.name==='太初混沌钟'){ player.atk+=18; player.def+=6; player.fate+=8; }
       if(art.name==='九转长生莲'){ player.lifespan+=120; player.maxHp+=50; player.hp+=50; }
       if(art.name==='天衍道纹炉'){ player.alchemyLv+=2; player.forgeLv+=1; }
       if(art.name==='虚空遁界符'){ player.explorationLv+=2; player.maxQi+=20; player.qi+=20; player.fate+=10; }
       if(art.name==='诸天剑胚'){ player.atk+=26; player.weapon={name:'诸天剑胚',power:26}; }
+      const artDisplay = treasureDisplayName(art);
+      const manual = randomManualByTier(tier);
+      state.bag.push({type:'manual', ...manual});
       if(Math.random() < 0.5){
         const highPill = tier === '仙品' ? {name:'九转回天丹', staminaPercent:0.80, tier:'仙品'} : {name:'玄元续命丹', staminaPercent:0.50, tier:'极品'};
         state.bag.push({type:'staminaPill', ...highPill});
-        addLog(`你选择【${choice}】，从【${tier}奇遇】中获得至宝【${art.name}】与体力丹药【${highPill.name}】！`);
+        addLog(`你选择【${choice}】，从【${tier}奇遇】中获得修为 +${gain}、灵石 +${stoneGain}、【${artDisplay}】、功法【${manual.name}】与体力丹药【${highPill.name}】！`);
       }else{
-        addLog(`你选择【${choice}】，从【${tier}奇遇】中获得至宝【${art.name}】！`);
+        addLog(`你选择【${choice}】，从【${tier}奇遇】中获得修为 +${gain}、灵石 +${stoneGain}、【${artDisplay}】与功法【${manual.name}】！`);
       }
     }else{
-      const benchBase = explorationBenchmarkExp(player.realm, state.currentLocation ? state.currentLocation.maxSpirit : 35);
-      const gain = Math.max(1, Math.floor(benchBase * (tier === '极品' ? 1.0 : 1.5)));
       const oldRealm = player.realm;
       player.exp += gain;
       player.realm = realmFromExp(player.exp);
       if(player.realm !== oldRealm) applyRealmGrowth(oldRealm, player.realm);
-      player.spiritStone += tier === '极品' ? 120 : 260;
-      player.fate += tier === '极品' ? 2 : 4;
-      addLog(`你选择【${choice}】，虽然没有得到至宝，但仍获得大量收益：修为 +${gain}，灵石 +${tier === '极品' ? 120 : 260}。`);
+      player.spiritStone += stoneGain;
+      player.fate += tier === '极品' ? (bias === 'safe' ? 3 : 2) : (bias === 'safe' ? 5 : 4);
+      const manual = randomManualByTier(tier);
+      state.bag.push({type:'manual', ...manual});
+      addLog(`你选择【${choice}】，虽然没有得到至宝，但仍获得大量收益：修为 +${gain}，灵石 +${stoneGain}，功法【${manual.name}】。`);
     }
   }else if(tier === '神品'){
-    if(Math.random() < 0.65){
+    const { expGain: gain, stoneGain } = encounterPercentReward(tier, bias);
+    if(Math.random() < (0.65 + (bias === 'greedy' ? 0.12 : bias === 'safe' ? -0.08 : 0))){
       const chaos = rand(chaosTreasures);
       state.artifacts.push(chaos);
       state.bag.push({type:'chaosTreasure', name:chaos.name, tier:chaos.rank});
+      const oldRealm = player.realm;
+      player.exp += gain;
+      player.realm = realmFromExp(player.exp);
+      if(player.realm !== oldRealm) applyRealmGrowth(oldRealm, player.realm);
+      player.spiritStone += stoneGain;
       if(chaos.name.includes('太虚源轮')){ player.maxHp += 180; player.maxQi += 90; player.atk += 28; player.hp = player.maxHp; player.qi = player.maxQi; }
       if(chaos.name.includes('玄黄道种')){ player.cultivateBonus = (player.cultivateBonus || 0) + 0.8; player.fate += 15; }
       if(chaos.name.includes('万界胚胎')){ player.atk += 20; player.def += 10; player.explorationLv += 2; player.alchemyLv += 1; player.forgeLv += 1; }
       state.bag.push({type:'staminaPill', name:'混沌回天丹', staminaPercent:1.00, tier:'神品'});
-      addLog(`你选择【${choice}】，触发【神品奇遇】，获得混沌灵宝【${chaos.name}】与【混沌回天丹】！`);
+      const manual = randomManualByTier('神品');
+      state.bag.push({type:'manual', ...manual});
+      addLog(`你选择【${choice}】，触发【神品奇遇】，获得修为 +${gain}、灵石 +${stoneGain}、【${treasureDisplayName(chaos)}】、【混沌回天丹】与功法【${manual.name}】！`);
     }else{
-      const benchBase = explorationBenchmarkExp(player.realm, state.currentLocation ? state.currentLocation.maxSpirit : 35);
-      const gain = Math.max(1, Math.floor(benchBase * 2.0));
       const oldRealm = player.realm;
       player.exp += gain;
       player.realm = realmFromExp(player.exp);
       if(player.realm !== oldRealm) applyRealmGrowth(oldRealm, player.realm);
-      player.spiritStone += 520;
-      player.fate += 8;
-      addLog(`你选择【${choice}】，虽然错失混沌灵宝，但仍从神品奇遇中获得修为 +${gain}、灵石 +520。`);
+      player.spiritStone += stoneGain;
+      player.fate += bias === 'safe' ? 10 : 8;
+      const manual = randomManualByTier('神品');
+      state.bag.push({type:'manual', ...manual});
+      addLog(`你选择【${choice}】，虽然错失混沌灵宝，但仍从神品奇遇中获得修为 +${gain}、灵石 +${stoneGain}，以及功法【${manual.name}】。`);
     }
   }
   state.encounter = null;
@@ -938,8 +2169,80 @@ function enterSecretRealm(){
   const r=structuredClone(rand(secretRealms));
   r.floor=randomInt(1,r.floors);
   state.secretRealm=r;
+  state.currentLocation = {
+    name:r.name,
+    spirit:Math.max(80, spiritSceneBase(player.realm)),
+    maxSpirit:Math.max(80, spiritSceneBase(player.realm)),
+    mode:'秘境',
+    reward:r.reward
+  };
   grantStats({realms:1});
   addLog(`你进入【${r.name}】第 ${r.floor} 层。`);
+}
+function concludeSecretRealm(){
+  if(!state.secretRealm) return;
+  const reward = state.secretRealm.reward || '秘境机缘';
+  const realmName = state.secretRealm.name;
+  const bonusStone = Math.max(60, Math.floor((state.currentLocation?.maxSpirit || 80) * 0.6));
+  const bonusExp = Math.max(40, Math.floor(explorationBenchmarkExp(player.realm, state.currentLocation?.maxSpirit || 80) * 0.75));
+  const oldRealm = player.realm;
+  player.exp += bonusExp;
+  player.realm = realmFromExp(player.exp);
+  if(player.realm !== oldRealm) applyRealmGrowth(oldRealm, player.realm);
+  player.spiritStone += bonusStone;
+  addLog(`你完成了【${realmName}】的探索，带出${reward}相关收获。额外获得修为 +${bonusExp}、灵石 +${bonusStone}。`);
+  showToast(`秘境探索完成｜灵石 +${bonusStone}`, 'success', '秘境完成');
+  state.secretRealm = null;
+  if(state.currentLocation && state.currentLocation.mode === '秘境'){
+    state.currentLocation = {name:'云隐洞府', spirit:35, maxSpirit:35, mode:'洞府'};
+  }
+}
+function exploreSecretRealmStep(){
+  const realm = state.secretRealm;
+  if(!realm) return false;
+  const scene = {
+    name:realm.name,
+    type:'秘境',
+    spirit:state.currentLocation?.maxSpirit || spiritSceneBase(player.realm),
+    reward:realm.reward
+  };
+  const baseReward = grantExploreBaseRewards(scene, 1.25);
+  const baseParts = [`修为 +${baseReward.expGain}`, `灵石 +${baseReward.stoneGain}`];
+  if(baseReward.pill) baseParts.push(`【${baseReward.pill.name}】`);
+  if(baseReward.manual) baseParts.push(`【${baseReward.manual.name}】`);
+  addLog(`你在【${realm.name}】第 ${realm.floor} 层稳步搜寻，先获得基础收获：${baseParts.join('，')}。`);
+  const roll = Math.random();
+  const encounterRate = 0.40 + Math.min(0.18, player.explorationLv * 0.01 + player.encounterRateBonus * 0.2);
+  const herbRate = 0.14;
+  const oreRate = 0.12;
+  const monsterRate = 0.20;
+  if(roll < encounterRate){
+    triggerEncounter(scene);
+  }else if(roll < encounterRate + herbRate){
+    const herb = rand(herbPool);
+    state.bag.push({type:'herb',...herb});
+    addLog(`你沿着【${realm.name}】的灵脉继续前行，在第 ${realm.floor} 层采得【${herb.name}】。`);
+  }else if(roll < encounterRate + herbRate + oreRate){
+    const ore = rand(orePool);
+    state.bag.push({type:'ore',...ore});
+    addLog(`你在【${realm.name}】第 ${realm.floor} 层岩壁间寻得【${ore.name}】。`);
+  }else if(roll < encounterRate + herbRate + oreRate + monsterRate){
+    state.currentMonster = structuredClone(rand(monsterPool));
+    state.currentMonster.hp = Math.floor(state.currentMonster.hp * 1.2);
+    state.currentMonster.atk = Math.floor(state.currentMonster.atk * 1.15);
+    addLog(`你深入【${realm.name}】第 ${realm.floor} 层，惊动了 ${state.currentMonster.name}！`);
+  }else{
+    const stoneGain = Math.max(8, Math.floor((state.currentLocation?.maxSpirit || 80) * 0.18));
+    player.spiritStone += stoneGain;
+    addLog(`你在【${realm.name}】第 ${realm.floor} 层搜得散落灵石 ${stoneGain} 枚。`);
+  }
+  if(realm.floor >= realm.floors){
+    concludeSecretRealm();
+  }else{
+    realm.floor += 1;
+    addLog(`你继续向【${realm.name}】更深处推进，来到第 ${realm.floor} 层。`);
+  }
+  return true;
 }
 function maybeWorldEvent(){
   const roll=Math.random();
@@ -949,25 +2252,47 @@ function maybeWorldEvent(){
   }
 }
 function explore(){
-  if(!spendStamina(5, '探索')) return;
+  if(!canSpendStamina(5, '探索')) return;
+  spendStamina(5, '探索');
+  if(state.secretRealm){
+    exploreSecretRealmStep();
+    player.qi=Math.max(0,player.qi-4);
+    grantStats({explores:1});
+    maybeWorldEvent();
+    saveGame(); renderAll();
+    return;
+  }
   const map=structuredClone(rand(maps));
-  state.currentLocation = {name:map.name, spirit:map.spirit, maxSpirit:map.spirit};
-  const rate=0.15 + player.explorationLv*0.03 + player.fate*0.01 + state.worldBuff.encounterBonus + player.encounterRateBonus;
+  state.currentLocation = {name:map.name, spirit:map.spirit, maxSpirit:map.spirit, mode:'野外'};
+  const baseReward = grantExploreBaseRewards(map, 1);
+  const baseParts = [`修为 +${baseReward.expGain}`, `灵石 +${baseReward.stoneGain}`];
+  if(baseReward.pill) baseParts.push(`【${baseReward.pill.name}】`);
+  if(baseReward.manual) baseParts.push(`【${baseReward.manual.name}】`);
+  addLog(`你在【${map.name}】探索一番，先获得基础收获：${baseParts.join('，')}。`);
+  const encounterRate = Math.min(0.16 + player.explorationLv*0.015 + player.fate*0.0025 + state.worldBuff.encounterBonus*0.5 + player.encounterRateBonus*0.7, 0.42);
+  const herbRate = map.type === '采药' ? 0.30 : map.type === '综合' ? 0.18 : 0.10;
+  const oreRate = map.type === '采矿' ? 0.28 : map.type === '综合' ? 0.16 : 0.10;
+  const monsterRate = map.type === '打怪' ? 0.26 : map.type === '探索' ? 0.18 : map.type === '综合' ? 0.16 : 0.12;
+  const secretRate = map.type === '综合' ? 0.14 : map.type === '探索' ? 0.10 : 0.06;
   const roll=Math.random();
-  if(roll<rate) triggerEncounter(map);
-  else if(roll<0.32+rate){
+  if(roll < encounterRate) triggerEncounter(map);
+  else if(roll < encounterRate + herbRate){
     const herb=rand(herbPool);
     state.bag.push({type:'herb',...herb});
     addLog(`你在【${map.name}】发现【${herb.name}】。`);
-  }else if(roll<0.56+rate){
+  }else if(roll < encounterRate + herbRate + oreRate){
     const ore=rand(orePool);
     state.bag.push({type:'ore',...ore});
     addLog(`你在【${map.name}】发现【${ore.name}】。`);
-  }else if(roll<0.82+rate){
+  }else if(roll < encounterRate + herbRate + oreRate + monsterRate){
     state.currentMonster=structuredClone(rand(monsterPool));
     addLog(`你在【${map.name}】遭遇了 ${state.currentMonster.name}！`);
-  }else{
+  }else if(roll < encounterRate + herbRate + oreRate + monsterRate + secretRate){
     enterSecretRealm();
+  }else{
+    const stoneGain = Math.max(4, Math.floor(map.spirit * 0.25));
+    player.spiritStone += stoneGain;
+    addLog(`你在【${map.name}】巡行一圈，虽无大机缘，但仍搜集到散落灵石 ${stoneGain} 枚。`);
   }
   player.qi=Math.max(0,player.qi-4);
   grantStats({explores:1});
@@ -976,30 +2301,45 @@ function explore(){
 }
 
 function startBattle(){
-  if(!spendStamina(5, '寻敌')) return;
+  if(!canSpendStamina(5, '寻敌')) return;
+  spendStamina(5, '寻敌');
   if(!state.currentMonster) state.currentMonster=structuredClone(rand(monsterPool));
   addLog(`你主动寻敌，遭遇 ${state.currentMonster.name}。`);
   renderAll();
 }
 function attackMonster(){
-  if(!spendStamina(5, '攻击')) return;
+  if(!canSpendStamina(5, '攻击')) return;
   const m=state.currentMonster;
   if(!m){ addLog('当前没有敌人。'); renderAll(); return; }
-  const pDmg=Math.max(1,Math.floor(player.atk)-Math.floor(Math.random()*4)+Math.floor(player.fate/3));
-  const mDmg=Math.max(1,m.atk-Math.floor(player.def)-Math.floor(Math.random()*3));
+  spendStamina(5, '攻击');
+  const cast = manualCastProfile('monster');
+  const canCast = player.qi >= cast.qiCost && cast.qiCost > 0;
+  if(canCast) player.qi = Math.max(0, player.qi - cast.qiCost);
+  const effectiveCritRate = (player.critRate || 0) * (1 + (player.manualCritRatePct || 0));
+  const critRoll = Math.random() * 100 < Math.max(0, effectiveCritRate + (canCast ? cast.critRateBonus : 0));
+  const baseDamage = Math.max(1,Math.floor(player.atk)-Math.floor(Math.random()*4)+Math.floor(player.fate/3));
+  const scaledDamage = canCast ? Math.floor(baseDamage * cast.damageMult) : baseDamage;
+  const critDamageValue = (player.critDamage || 150) * (1 + (player.manualCritDamagePct || 0)) + (canCast ? cast.critDamageBonus : 0);
+  const pDmg = critRoll ? Math.max(1, Math.floor(scaledDamage * Math.max(1.1, critDamageValue / 100))) : scaledDamage;
+  const enemyCritChance = Math.max(0, 10 - Math.round((player.critResistPct || 0) * 100));
+  const enemyCrit = Math.random() * 100 < enemyCritChance;
+  const rawMDmg = Math.max(1,m.atk-Math.floor(player.def)-Math.floor(Math.random()*3));
+  const reducedMDmg = Math.max(1, Math.floor((enemyCrit ? rawMDmg * 1.5 : rawMDmg) * (1 - (player.damageReducePct || 0))));
+  const mDmg = reducedMDmg;
   m.hp-=pDmg;
   if(m.hp<=0){
-    const gain=gainExp(Math.floor(m.exp * 0.8));
-    player.spiritStone+=12;
+    const gain=gainExp(Math.floor(m.exp * 0.8 * (1 + (canCast ? cast.expBonus : 0))));
+    const stoneGain = Math.floor(12 * (1 + (canCast ? cast.stoneBonus : 0)));
+    player.spiritStone+=stoneGain;
     player.contribution+=2;
     state.bag.push({type:'material',name:m.loot});
     grantStats({kills:1});
-    addLog(`你击败了 ${m.name}，修为 +${gain}，获得【${m.loot}】。`);
+    addLog(`你击败了 ${m.name}，${canCast ? `施展【${cast.manualName}】${cast.style ? `（${cast.style}）` : ''}耗灵 ${cast.qiCost} 点，` : ''}${critRoll ? '打出会心一击，' : ''}修为 +${gain}，灵石 +${stoneGain}，获得【${m.loot}】。`);
     state.currentMonster=null;
     saveGame(); renderAll(); return;
   }
   player.hp=Math.max(0,player.hp-mDmg);
-  addLog(`你对 ${m.name} 造成 ${pDmg} 点伤害，并受到 ${mDmg} 点反击。`);
+  addLog(`你对 ${m.name} 造成 ${pDmg} 点伤害${canCast ? `，施展【${cast.manualName}】${cast.style ? `（${cast.style}）` : ''}消耗灵气 ${cast.qiCost}` : '（灵气不足，仅作普通攻击）'}，并受到 ${mDmg} 点反击${enemyCrit ? '（敌方会心）' : ''}。`);
   if(player.hp<=0){
     player.hp=Math.floor(player.maxHp*0.5);
     player.qi=Math.floor(player.maxQi*0.5);
@@ -1010,28 +2350,34 @@ function attackMonster(){
 }
 
 function refinePill(){
-  if(!spendStamina(5, '炼丹')) return;
+  if(!canSpendStamina(5, '炼丹')) return;
   const idxs=state.bag.map((x,i)=>[x,i]).filter(([x])=>x.type==='herb').slice(0,2);
   if(idxs.length<2){ addLog('炼丹失败：至少需要两株灵草。'); renderAll(); return; }
+  spendStamina(5, '炼丹');
   const used=idxs.map(([x])=>x); idxs.reverse().forEach(([,i])=>state.bag.splice(i,1));
   const rate=0.65 + used.reduce((s,h)=>s+(rarityMultiplier(h.rarity)-1)*0.08,0) + player.alchemyLv*0.03;
   if(Math.random()<Math.min(0.97,rate)){
-    state.bag.push({type:'pill',name:'聚气丹',heal:15+used.reduce((s,h)=>s+h.qi,0)+player.alchemyLv*2,qi:8+player.alchemyLv});
+    const pill = {type:'pill',name:'聚气丹',heal:15+used.reduce((s,h)=>s+h.qi,0)+player.alchemyLv*2,qi:8+player.alchemyLv};
+    state.bag.push(pill);
     grantStats({pills:1});
-    addLog('你成功炼成【聚气丹】。');
-  }else addLog('丹炉一震，本次炼丹失败。');
+    addLog(`${rand(craftNarratives.refinePill)} 你成功炼成【${pill.name}】。`);
+  }else addLog('丹炉一震，药性失衡，本次炼丹失败。');
   saveGame(); renderAll();
 }
 function forge(){
-  if(!spendStamina(5, '炼器')) return;
+  if(!canSpendStamina(5, '炼器')) return;
   const idxs=state.bag.map((x,i)=>[x,i]).filter(([x])=>x.type==='ore').slice(0,2);
   if(idxs.length<2){ addLog('炼器失败：至少需要两份矿材。'); renderAll(); return; }
+  spendStamina(5, '炼器');
   const used=idxs.map(([x])=>x); idxs.reverse().forEach(([,i])=>state.bag.splice(i,1));
   const power=used.reduce((s,o)=>s+o.power,0)+Math.floor(Math.random()*4)+player.forgeLv;
   const name=power>20?'离火神兵':power>16?'灵炎飞剑':power>10?'玄铁法剑':'黑锋短刃';
-  player.weapon={name,power}; player.atk=8+power; player.forgeLv+=0.2;
+  const forgedItem = {name, tier: power>20?'极品法宝':power>16?'上品法宝':power>10?'中品灵器':'凡品法器', power};
+  equipWeaponItem(forgedItem);
+  player.forgeLv+=0.2;
   grantStats({forge:1});
-  addLog(`你成功炼制【${name}】，攻击提升至 ${Math.floor(player.atk)}。`);
+  addLog(`${rand(craftNarratives.forge)} 你成功炼制【${name}】，获得加成：${formatStatDelta(player.weapon.bonus)}。`);
+  showToast(`${name}｜${formatStatDelta(player.weapon.bonus)}`, 'success', '炼器成功');
   saveGame(); renderAll();
 }
 function usePill(){
@@ -1064,9 +2410,10 @@ function restoreCurrentLocation(){
 }
 
 function attemptTribulation(){
-  if(!spendStamina(5, '渡劫')) return;
+  if(!canSpendStamina(5, '渡劫')) return;
   const stage={ '筑基':20,'金丹':40,'元婴':65,'化神':90,'炼虚':130,'合体':180,'大乘':260,'渡劫':360 }[player.realm];
   if(!stage){ addLog('你当前境界暂时无法引动天劫。'); renderAll(); return; }
+  spendStamina(5, '渡劫');
   const power=player.atk+player.def+player.fate*2+state.artifacts.length*6;
   if(power>stage+Math.random()*25){
     player.maxHp+=20; player.maxQi+=15; player.atk+=4; player.fate+=2; player.hp=player.maxHp; player.qi=player.maxQi;
@@ -1096,7 +2443,7 @@ function buyShop(index){
   player.contribution-=item.cost;
   if(item.type==='pill') state.bag.push({type:'pill',name:item.name,heal:25,qi:10});
   if(item.type==='ore') state.bag.push({type:'ore',...rand(orePool)});
-  if(item.type==='manual') player.alchemyLv+=1;
+  if(item.type==='manual') state.bag.push({type:'manual', ...randomManualByTier(rand(['凡品','中品','上品']))});
   addLog(`你兑换了【${item.name}】。`);
   saveGame(); renderAll();
 }
@@ -1108,7 +2455,7 @@ function upgradeCave(index){
   if(item.name==='药圃') state.bag.push({type:'herb',...rand(herbPool)});
   if(item.name==='地火室'){ player.alchemyLv+=1; player.forgeLv+=1; }
   if(item.name==='护山阵') player.def+=2;
-  addLog(`你的洞府完成升级：【${item.name}】已建成。`);
+  addLog(`${rand(craftNarratives.upgradeCave)} 你的洞府完成升级：【${item.name}】已建成。`);
   saveGame(); renderAll();
 }
 function tameSpiritBeast(){
@@ -1167,19 +2514,48 @@ function bidRandomAuction(){
   saveGame(); renderAll();
 }
 function challengeWorldBoss(){
-  if(!spendStamina(5, '挑战世界Boss')) return;
+  if(!canSpendStamina(5, '挑战世界Boss')) return;
+  spendStamina(5, '挑战世界Boss');
   if(!state.pendingWorldBoss) state.pendingWorldBoss=structuredClone(rand(worldBossPool));
   const b=state.pendingWorldBoss;
-  const playerPower=player.atk+player.def+player.fate+state.artifacts.length*10;
-  if(playerPower+Math.random()*120 > b.atk+b.hp/80){
-    const gain=gainExp(120);
-    player.spiritStone+=100;
+  const cast = manualCastProfile('boss');
+  const canCast = player.qi >= cast.qiCost && cast.qiCost > 0;
+  if(canCast) player.qi = Math.max(0, player.qi - cast.qiCost);
+  const effectiveCritRate = (player.critRate || 0) * (1 + (player.manualCritRatePct || 0));
+  const critRoll = Math.random() * 100 < Math.max(0, effectiveCritRate + (canCast ? cast.critRateBonus : 0));
+  const basePower = player.atk + player.def * 0.75 + player.fate * 1.5 + Math.floor(player.maxHp / 40) + Math.floor((player.speed || 0) / 8);
+  const castPower = canCast ? basePower * cast.damageMult : basePower;
+  const critDamageValue = (player.critDamage || 150) * (1 + (player.manualCritDamagePct || 0)) + (canCast ? cast.critDamageBonus : 0);
+  const critPower = critRoll ? castPower * Math.max(1.1, critDamageValue / 100) : castPower;
+  const playerPower = critPower + Math.random() * 120;
+  const bossPower = b.atk + b.hp / 80;
+  if(playerPower > bossPower){
+    const gain=gainExp(Math.floor((220 + Math.floor(b.hp / 30)) * (1 + (canCast ? cast.expBonus : 0))));
+    const stoneGain = Math.floor((100 + Math.floor(Math.random() * 80)) * (1 + (canCast ? cast.stoneBonus : 0)));
+    player.spiritStone+=stoneGain;
     state.bag.push({type:'material',name:b.drop});
-    addLog(`你击败了世界Boss【${b.name}】，修为 +${gain}，获得【${b.drop}】。`);
+    const rewards = [`修为 +${gain}`, `灵石 +${stoneGain}`, `【${b.drop}】`];
+    if(Math.random() < 0.65){
+      const gear = structuredClone(rand(bossRewardArtifacts));
+      state.bag.push({type:'artifact', ...gear});
+      rewards.push(`【${gear.name}】`);
+    }
+    if(Math.random() < 0.28){
+      const treasure = rand(divineArtifacts);
+      state.bag.push({type:'treasure', name:treasure.name, tier:treasure.rank});
+      rewards.push(`【${treasureDisplayName(treasure)}】`);
+    }
+    if(Math.random() < 0.06){
+      const chaos = rand(chaosTreasures);
+      state.bag.push({type:'chaosTreasure', name:chaos.name, tier:chaos.rank});
+      rewards.push(`【${treasureDisplayName(chaos)}】`);
+    }
+    addLog(`你击败了世界Boss【${b.name}】${canCast ? `，施展【${cast.manualName}】${cast.style ? `（${cast.style}）` : ''}消耗灵气 ${cast.qiCost} 点` : '，但灵气不足，未能施展功法'}${critRoll ? '，并打出会心一击' : ''}，获得：${rewards.join('，')}。`);
+    showToast(`世界Boss战利品已入袋`, 'success', 'Boss讨伐成功');
     state.pendingWorldBoss=null;
   }else{
     player.hp=Math.max(1,Math.floor(player.maxHp*0.35));
-    addLog(`你挑战【${b.name}】失败，身受重创。`);
+    addLog(`你挑战【${b.name}】失败${canCast ? `，施展【${cast.manualName}】${cast.style ? `（${cast.style}）` : ''}消耗灵气 ${cast.qiCost} 点后仍不敌` : '，且灵气不足未能施展功法'}，身受重创。`);
   }
   saveGame(); renderAll();
 }
@@ -1224,11 +2600,14 @@ function loadGame(){
   const data = JSON.parse(raw);
   player = data.player;
   state = data.state;
-  if(!state.currentLocation) state.currentLocation = {name:'云隐洞府', spirit:35, maxSpirit:35};
+  normalizePlayerStats();
+  if(!state.currentLocation) state.currentLocation = {name:'云隐洞府', spirit:35, maxSpirit:35, mode:'洞府'};
+  if(!state.learnedManuals) state.learnedManuals = [];
   syncStaminaByTime();
   startData = data.startData;
   document.getElementById('startPage').classList.remove('active');
   document.getElementById('gamePage').classList.add('active');
+  document.getElementById('bottomNav').classList.remove('hidden');
   renderAll();
 }
 function clearSave(){
@@ -1244,6 +2623,32 @@ function itemQualityClass(item){
   const t = item.tier || item.rank || item.rarity || item.name || '';
   return qualityClass(String(t));
 }
+function itemTypeLabel(item){
+  const type = item?.type || '';
+  const mapping = {
+    herb:'灵草',
+    ore:'矿材',
+    material:'材料',
+    pill:'丹药',
+    staminaPill:'体力丹',
+    artifact:'法器',
+    treasure:'至宝',
+    chaosTreasure:'混沌至宝',
+    manual:'功法',
+    item:'道具'
+  };
+  return item.tier || item.rank || item.rarity || mapping[type] || '物品';
+}
+function itemQualityWeight(item){
+  const text = String(item?.tier || item?.rank || item?.name || '');
+  if(/混沌至宝|神品|神器/.test(text)) return 6;
+  if(/先天至宝|仙品|仙器/.test(text)) return 5;
+  if(/极品至宝|极品|灵宝/.test(text)) return 4;
+  if(/上品|法宝/.test(text)) return 3;
+  if(/中品|灵器/.test(text)) return 2;
+  if(/凡品|法器/.test(text)) return 1;
+  return 0;
+}
 function isEquipableWeapon(item){
   const t = item.tier || '';
   return item.type === 'artifact' && (t.includes('法器') || t.includes('灵器') || t.includes('法宝') || t.includes('灵宝') || t.includes('仙器') || t.includes('神器'));
@@ -1251,11 +2656,58 @@ function isEquipableWeapon(item){
 function isEquipableTreasure(item){
   return item.type === 'treasure' || item.type === 'chaosTreasure';
 }
+function isEquippedBagItem(item){
+  if(!item) return false;
+  const itemTier = item.tier || item.rank || '';
+  if(player.weapon && item.type === 'artifact' && player.weapon.name === item.name && (player.weapon.tier || '') === itemTier){
+    return true;
+  }
+  if(state.equippedArtifact && isEquipableTreasure(item) && state.equippedArtifact.name === item.name && (state.equippedArtifact.tier || '') === itemTier){
+    return true;
+  }
+  return false;
+}
+function isHighValueItem(item){
+  const text = String(item?.tier || item?.rank || item?.name || '');
+  return /极品|仙品|神品|至宝|仙器|神器|灵宝|混沌至宝|先天至宝/.test(text);
+}
+function sameBagItem(a, b){
+  if(!a || !b) return false;
+  return JSON.stringify({
+    name:a.name, type:a.type, tier:a.tier || '', rank:a.rank || '',
+    rarity:a.rarity || '', staminaPercent:a.staminaPercent || 0,
+    heal:a.heal || 0, qi:a.qi || 0, power:a.power || 0
+  }) === JSON.stringify({
+    name:b.name, type:b.type, tier:b.tier || '', rank:b.rank || '',
+    rarity:b.rarity || '', staminaPercent:b.staminaPercent || 0,
+    heal:b.heal || 0, qi:b.qi || 0, power:b.power || 0
+  });
+}
+function findSellableBagIndex(item){
+  return state.bag.findIndex(x => sameBagItem(x, item) && !isEquippedBagItem(x));
+}
+function sortedBagGroups(){
+  return groupedBagItems().sort((a, b) => {
+    const qualityDiff = itemQualityWeight(b.item) - itemQualityWeight(a.item);
+    if(qualityDiff !== 0) return qualityDiff;
+    const typeDiff = String(a.item.type || '').localeCompare(String(b.item.type || ''), 'zh-CN');
+    if(typeDiff !== 0) return typeDiff;
+    return String(a.item.name || '').localeCompare(String(b.item.name || ''), 'zh-CN');
+  });
+}
+function changeBagPage(step){
+  const total = Math.max(1, Math.ceil(sortedBagGroups().length / BAG_PAGE_SIZE));
+  bagPage = Math.min(total, Math.max(1, bagPage + step));
+  renderBagBox();
+}
 function selectBagItem(index){
   const item = state.bag[index];
   if(!item) return;
   selectedBagIndex = index;
   selectedBagType = item.type || '';
+  const groups = sortedBagGroups();
+  const pos = groups.findIndex(g => g.firstIndex === index);
+  if(pos !== -1) bagPage = Math.floor(pos / BAG_PAGE_SIZE) + 1;
   renderBagBox();
 }
 function clearBagSelection(){
@@ -1266,18 +2718,17 @@ function clearBagSelection(){
 function equipSelectedWeapon(){
   const item = state.bag[selectedBagIndex];
   if(!item || !isEquipableWeapon(item)){ addLog('请先在背包里选中一件可装备的装备。'); renderAll(); return; }
-  player.weapon = {name:item.name, tier:item.tier || item.rank || '未知'};
-  player.atk += 6;
+  const equipped = equipWeaponItem(item);
   addLog(`你装备了【${item.name}】。`);
+  showToast(`${item.name}｜${formatStatDelta(equipped.bonus)}`, 'success', '装备成功');
   saveGame(); renderAll();
 }
 function equipSelectedArtifact(){
   const item = state.bag[selectedBagIndex];
   if(!item || !isEquipableTreasure(item)){ addLog('请先在背包里选中一件可装备的法宝。'); renderAll(); return; }
-  state.equippedArtifact = {name:item.name, tier:item.tier || item.rank || '未知'};
-  player.atk += item.type === 'chaosTreasure' ? 20 : 10;
-  player.def += item.type === 'chaosTreasure' ? 8 : 4;
+  const equipped = equipArtifactItem(item);
   addLog(`你祭炼并装备了法宝【${item.name}】。`);
+  showToast(`${item.name}｜${formatStatDelta(equipped.bonus)}`, 'success', '法宝祭炼');
   saveGame(); renderAll();
 }
 function useSelectedItem(){
@@ -1300,8 +2751,38 @@ function useSelectedItem(){
     clearBagSelection();
     saveGame(); renderAll(); return;
   }
+  if(item.type === 'manual'){
+    if(!learnManualItem(item)){
+      addLog(`你已参悟过功法【${item.name}】，无需重复研习。`);
+      renderAll();
+      return;
+    }
+    state.bag.splice(selectedBagIndex, 1);
+    addLog(`你静心参悟【${item.name}】，获得加成：${formatStatDelta(item.bonus)}。`);
+    showToast(`${item.name}｜${formatStatDelta(item.bonus)}`, 'success', '功法参悟');
+    clearBagSelection();
+    saveGame(); renderAll(); return;
+  }
   addLog('这个物品当前不能直接使用。');
   renderAll();
+}
+function learnSelectedManual(){
+  const item = state.bag[selectedBagIndex];
+  if(!item || item.type !== 'manual'){
+    addLog('请先在背包中选中一本可学习的功法。');
+    renderAll();
+    return;
+  }
+  if(!learnManualItem(item)){
+    addLog(`你已参悟过功法【${item.name}】，无需重复研习。`);
+    renderAll();
+    return;
+  }
+  state.bag.splice(selectedBagIndex, 1);
+  addLog(`你静心参悟【${item.name}】，获得加成：${formatStatDelta(item.bonus)}。`);
+  showToast(`${item.name}｜${formatStatDelta(item.bonus)}`, 'success', '功法参悟');
+  clearBagSelection();
+  saveGame(); renderAll();
 }
 
 function groupedBagItems(){
@@ -1330,6 +2811,11 @@ function sellPriceOfItem(item){
                                            (item.tier || '').includes('灵宝') ? 1500 :
                                            (item.tier || '').includes('法宝') ? 800 :
                                            (item.tier || '').includes('灵器') ? 300 : 120) :
+               item.type === 'manual' ? ((item.tier || '').includes('神品') ? 12000 :
+                                         (item.tier || '').includes('仙品') ? 6000 :
+                                         (item.tier || '').includes('极品') ? 2800 :
+                                         (item.tier || '').includes('上品') ? 900 :
+                                         (item.tier || '').includes('中品') ? 320 : 120) :
                item.type === 'ore' ? (item.power || 1) * 20 :
                item.type === 'herb' ? (item.qi || 1) * 15 :
                item.type === 'staminaPill' ? Math.floor((item.staminaPercent || 0.1) * 800) :
@@ -1340,22 +2826,55 @@ function sellPriceOfItem(item){
 function sellSelectedItem(){
   const item = state.bag[selectedBagIndex];
   if(!item){ addLog('请先在背包里选中一个要出售的物品。'); renderAll(); return; }
-  const price = sellPriceOfItem(item);
+  const saleIndex = isEquippedBagItem(item) ? findSellableBagIndex(item) : selectedBagIndex;
+  if(saleIndex === -1){
+    addLog(`【${item.name}】当前已装备，且没有可出售的同类副本。`);
+    renderAll();
+    return;
+  }
+  const saleItem = state.bag[saleIndex];
+  if(isHighValueItem(saleItem) && !confirm(`【${saleItem.name}】属于极品及以上的珍贵装备/法宝，确认出售吗？`)){
+    addLog(`你取消了出售【${item.name}】。`);
+    renderAll();
+    return;
+  }
+  const price = sellPriceOfItem(saleItem);
   player.spiritStone += price;
-  state.bag.splice(selectedBagIndex, 1);
-  addLog(`你已将背包中的【${item.name}】一键出售到坊市，获得灵石 ${price}。`);
+  state.bag.splice(saleIndex, 1);
+  addLog(`你已将背包中的【${saleItem.name}】一键出售到坊市，获得灵石 ${price}。`);
+  showToast(`${saleItem.name}｜获得 ${price} 灵石`, 'warn', '卖出成功');
   clearBagSelection();
   saveGame(); renderAll();
 }
 function sellDuplicateItems(){
-  const groups = groupedBagItems().filter(g => g.count > 1 && (g.item.type === 'artifact' || g.item.type === 'treasure' || g.item.type === 'chaosTreasure'));
-  if(!groups.length){ addLog('当前没有可批量出售的重复装备或法宝。'); renderAll(); return; }
+  const groups = groupedBagItems().filter(g => g.count > 1 && (g.item.type === 'artifact' || g.item.type === 'treasure' || g.item.type === 'chaosTreasure' || g.item.type === 'manual'));
+  if(!groups.length){ addLog('当前没有可批量出售的重复装备、法宝或功法。'); renderAll(); return; }
+  const protectedGroups = groups.filter(g => isEquippedBagItem(g.item));
+  const saleGroups = groups.map(g => {
+    const keepEquipped = isEquippedBagItem(g.item) ? 1 : 0;
+    const removeCount = Math.max(0, g.count - 1 - keepEquipped);
+    return {...g, removeCount};
+  }).filter(g => g.removeCount > 0);
+  if(!saleGroups.length){
+    addLog('可出售的重复装备已全部被保护或不足以出售。');
+    renderAll();
+    return;
+  }
+  const highValueGroups = saleGroups.filter(g => isHighValueItem(g.item));
+  if(highValueGroups.length){
+    const preview = highValueGroups.map(g => `${g.item.name} × ${g.removeCount}`).join('、');
+    if(!confirm(`以下极品及以上装备/法宝将被出售：${preview}。确认继续吗？`)){
+      addLog('你取消了批量出售。');
+      renderAll();
+      return;
+    }
+  }
   let total = 0;
-  groups.forEach(g => {
-    const removeCount = g.count - 1;
+  saleGroups.forEach(g => {
+    const removeCount = g.removeCount;
     total += sellPriceOfItem(g.item) * removeCount;
     for(let i = 0; i < removeCount; i++){
-      const idx = state.bag.findIndex(x => JSON.stringify({
+      const idx = state.bag.findIndex(x => !isEquippedBagItem(x) && JSON.stringify({
         name:x.name, type:x.type, tier:x.tier || '', rank:x.rank || '',
         rarity:x.rarity || '', staminaPercent:x.staminaPercent || 0,
         heal:x.heal || 0, qi:x.qi || 0, power:x.power || 0
@@ -1368,7 +2887,11 @@ function sellDuplicateItems(){
     }
   });
   player.spiritStone += total;
-  addLog(`你批量出售了重复装备/法宝，获得灵石 ${total}。`);
+  if(protectedGroups.length){
+    addLog(`已自动保留正在装备中的物品：${protectedGroups.map(g => `【${g.item.name}】`).join('、')}。`);
+  }
+  addLog(`你批量出售了重复物品，获得灵石 ${total}。`);
+  showToast(`重复装备/法宝已出售｜获得 ${total} 灵石`, 'warn', '批量卖出');
   clearBagSelection();
   saveGame(); renderAll();
 }
@@ -1385,13 +2908,14 @@ function buyMarketItem(index){
   delete copy.price;
   state.bag.push(copy);
   addLog(`你在坊市购买了【${item.name}】，花费灵石 ${item.price}。`);
+  showToast(`${item.name}｜花费 ${item.price} 灵石`, 'info', '坊市购入');
   saveGame(); renderAll();
 }
 function renderMarketBox(){
   const el = document.getElementById('marketList');
   if(!el) return;
   el.innerHTML = state.marketGoods.map((item, i) => {
-    const tag = item.tier || item.rarity || item.type;
+    const tag = itemTypeLabel(item);
     const extra = item.staminaPercent ? `恢复体力 ${Math.floor(item.staminaPercent * 100)}%` :
                  item.heal ? `恢复气血 ${item.heal}` :
                  item.power ? `威能 ${item.power}` :
@@ -1402,46 +2926,84 @@ function renderMarketBox(){
 function renderBagBox(){
   const equipText = player.weapon ? `<span class="${qualityClass(player.weapon.tier || player.weapon.name)}">${player.weapon.name}</span>` : '未装备';
   const artifactText = state.equippedArtifact ? `<span class="${qualityClass(state.equippedArtifact.tier || state.equippedArtifact.name)}">${state.equippedArtifact.name}</span>` : '未装备';
+  const manualText = (state.learnedManuals || []).length ? learnedManualObjects().map(m => `<span class="${qualityClass(m.tier || m.name)}">${manualDisplayName(m)}</span>`).join('、') : '暂无';
   const bagEl = document.getElementById('bagList');
   const equipEl = document.getElementById('equipBox');
   const artiEl = document.getElementById('artifactBox');
+  const manualEl = document.getElementById('manualBox');
+  const selectedEl = document.getElementById('selectedItemBox');
+  const pageInfoEl = document.getElementById('bagPageInfo');
   if(equipEl) equipEl.innerHTML = `武器/装备：${equipText}`;
   if(artiEl) artiEl.innerHTML = `法宝：${artifactText}`;
+  if(manualEl) manualEl.innerHTML = `功法：${manualText}`;
   if(!bagEl) return;
-  const groups = groupedBagItems();
+  const groups = sortedBagGroups();
+  const totalPages = Math.max(1, Math.ceil(groups.length / BAG_PAGE_SIZE));
+  if(bagPage > totalPages) bagPage = totalPages;
+  const start = (bagPage - 1) * BAG_PAGE_SIZE;
+  const pageGroups = groups.slice(start, start + BAG_PAGE_SIZE);
+  if(pageInfoEl) pageInfoEl.textContent = `第 ${bagPage} / ${totalPages} 页`;
   if(!groups.length){
     bagEl.innerHTML = '<div class="item muted">背包空空如也。</div>';
+    if(selectedEl) selectedEl.innerHTML = '当前没有可查看的物品。';
+    if(pageInfoEl) pageInfoEl.textContent = '第 1 / 1 页';
     return;
   }
-  bagEl.innerHTML = groups.map((g) => {
+  const selectedGroup = groups.find(g => g.firstIndex === selectedBagIndex) || null;
+  if(selectedEl){
+    if(!selectedGroup){
+      selectedEl.innerHTML = '点击下方格子查看物品详情，并进行装备、参悟或使用。';
+    }else{
+      const item = selectedGroup.item;
+      const hints = [];
+      if(isEquipableWeapon(item)) hints.push('可装备');
+      if(isEquipableTreasure(item)) hints.push('可作法宝');
+      if(item.type === 'manual') hints.push('可参悟');
+      if(item.type === 'staminaPill' || item.type === 'pill') hints.push('可使用');
+      if(isEquippedBagItem(item)) hints.push('已装备');
+      if(isHighValueItem(item) && !isEquippedBagItem(item)) hints.push('珍贵');
+      const extra = item.staminaPercent ? `恢复体力 ${Math.floor(item.staminaPercent * 100)}%` : item.heal ? `恢复气血 ${item.heal}` : item.power ? `威能 ${item.power}` : item.qi ? `灵气值 ${item.qi}` : item.type === 'manual' ? `${formatStatDelta(item.bonus)}${manualStyleText(item) ? `<br>${manualStyleText(item)}` : ''}` : item.bonus ? formatStatDelta(item.bonus) : describeEquipBonus(item);
+      selectedEl.innerHTML = `<div class="selected-title ${itemQualityClass(item)}">${rewardDisplayName(item)}</div><div>${itemTypeLabel(item)} × ${selectedGroup.count}${hints.length ? `｜${hints.join('｜')}` : ''}</div><div class="mt8">${extra || '暂无额外说明'}</div>`;
+    }
+  }
+  bagEl.innerHTML = pageGroups.map((g) => {
     const item = g.item;
     const i = g.firstIndex;
-    const tag = item.tier || item.rank || item.rarity || item.type || '物品';
-    const extra = item.staminaPercent ? `恢复体力 ${Math.floor(item.staminaPercent * 100)}%` : item.heal ? `恢复气血 ${item.heal}` : item.power ? `威能 ${item.power}` : item.qi ? `灵气值 ${item.qi}` : '';
-    const selected = i === selectedBagIndex ? ' style="outline:2px solid #ffd966"' : '';
-    const actionHint = isEquipableWeapon(item) ? '【可装备】' : isEquipableTreasure(item) ? '【可作法宝】' : item.type === 'staminaPill' || item.type === 'pill' ? '【可使用】' : '';
-    return `<div class="item"${selected} onclick="selectBagItem(${i})"><span class="${itemQualityClass(item)}">${item.name}</span> × ${g.count}<br><span class="small">${tag}${extra ? '｜' + extra : ''}${actionHint ? '｜' + actionHint : ''}</span></div>`;
+    const tag = itemTypeLabel(item);
+    const selected = i === selectedBagIndex ? ' selected' : '';
+    const extra = item.staminaPercent ? `体+${Math.floor(item.staminaPercent * 100)}%` : item.heal ? `血+${item.heal}` : item.power ? `威能 ${item.power}` : item.qi ? `灵气 ${item.qi}` : item.type === 'manual' ? '可参悟' : '';
+    const flags = [isEquippedBagItem(item) ? '已装备' : '', !isEquippedBagItem(item) && isHighValueItem(item) ? '珍贵' : ''].filter(Boolean).join('｜');
+    return `<div class="bag-slot${selected}" onclick="selectBagItem(${i})"><div class="bag-slot-name ${itemQualityClass(item)}">${rewardDisplayName(item)}</div><div class="bag-slot-meta">${tag}${extra ? `<br>${extra}` : ''}${flags ? `<br>${flags}` : ''}<br>数量 × ${g.count}</div></div>`;
   }).join('');
 }
 function renderTop(){
+  normalizePlayerStats();
+  const minor = minorRealmInfo(player.exp, player.realm);
+  const traitHtml = player.traits.map(t=>`<span class="trait-chip ${qualityClass(t.tier)}">${traitDisplay(t)}</span>`).join('');
   document.getElementById('heroBadges').innerHTML = `
-    <div class="badge ${qualityClass(player.spiritRoot.name + player.spiritRoot.tier)}">灵根：${player.spiritRoot.tier} ${player.spiritRoot.name}</div>
+    <div class="badge">灵根：<span class="${qualityClass(player.spiritRoot.name + player.spiritRoot.tier)}">${spiritRootDisplay(player.spiritRoot)}</span></div>
+    <div class="badge trait-badge">天命：${traitHtml}</div>
+    <div class="badge trait-badge">功法：${(state.learnedManuals || []).length ? learnedManualObjects().map(m=>`<span class="trait-chip ${qualityClass(m.tier || m.name)}">${manualDisplayName(m)}</span>`).join('、') : '暂无'}</div>
     <div class="badge">宗门：${player.sect}</div>
-    <div class="badge">天命：${player.traits.map(t=>t.name).join('、')}</div>
+    <div class="badge">灵石：${Math.floor(player.spiritStone || 0)}</div>
   `;
-  document.getElementById('realmText').textContent = `${player.realm} / 修炼倍率 ${(player.cultivateRate + (player.cultivateBonus||0)).toFixed(2)}x`;
+  document.getElementById('realmText').textContent = `${minor.label} / 修炼倍率 ${(player.cultivateRate + (player.cultivateBonus||0)).toFixed(2)}x`;
   document.getElementById('hpText').textContent = `${Math.floor(player.hp)}/${Math.floor(player.maxHp)}`;
   document.getElementById('qiText').textContent = `${Math.floor(player.qi)}/${Math.floor(player.maxQi)}`;
   const nextNeed=nextRealmNeed(player.exp);
-  document.getElementById('expText').textContent = `${Math.floor(player.exp)}/${Math.floor(nextNeed)}`;
+  document.getElementById('expText').textContent = `${Math.floor(player.exp)}/${Math.floor(nextNeed)}（当前境界 ${minor.label} / 下一小境界 ${Math.floor(minor.nextStageNeed)}）`;
   document.getElementById('hpBar').style.width = `${(player.hp/player.maxHp)*100}%`;
   document.getElementById('qiBar').style.width = `${(player.qi/player.maxQi)*100}%`;
   document.getElementById('expBar').style.width = `${Math.min(100,(player.exp/nextNeed)*100)}%`;
   const stats = [
-    ['攻击',Math.floor(player.atk)],['防御',Math.floor(player.def)],
-    ['灵石',player.spiritStone],['气运',player.fate],
-    ['炼丹',player.alchemyLv],['炼器',Math.floor(player.forgeLv)],
-    ['探索',player.explorationLv],['寿元',Math.floor(player.lifespan)]
+    ['攻击',Math.floor(player.atk)],
+    ['防御',Math.floor(player.def)],
+    ['速度',Math.floor(player.speed)],
+    ['会心',`${Math.floor(player.critRate)}%`],
+    ['会心伤害',`${Math.floor(player.critDamage)}%`],
+    ['会心抵抗',`${Math.round((player.critResistPct || 0) * 100)}%`],
+    ['伤害加成',`${Math.round((player.damagePct || 0) * 100)}%`],
+    ['伤害抵抗',`${Math.round((player.damageReducePct || 0) * 100)}%`]
   ];
   document.getElementById('stats').innerHTML = stats.map(([k,v])=>`<div class="stat"><div class="label">${k}</div><div class="value">${v}</div></div>`).join('');
 }
@@ -1449,8 +3011,8 @@ function renderRootTraitBox(){
   const sy = player.traits.filter(t=>t.synergy);
   const staminaCfg = realmStaminaConfig(player.realm);
   document.getElementById('rootTraitBox').innerHTML = `
-    当前灵根：<span class="${qualityClass(player.spiritRoot.name + player.spiritRoot.tier)}">${player.spiritRoot.tier} ${player.spiritRoot.name}</span><br>
-    当前词条：${player.traits.map(t=>`<span class="${qualityClass(t.tier)}">${t.tier}</span>·${t.name}`).join('、')}<br>
+    当前灵根：<span class="${qualityClass(player.spiritRoot.name + player.spiritRoot.tier)}">${spiritRootDisplay(player.spiritRoot)}</span><br>
+    当前词条：${player.traits.map(t=>`<span class="${qualityClass(t.tier)}">${traitDisplay(t)}</span>`).join('、')}<br>
     ${sy.length ? '联动效果：' + sy.map(t=>`${t.name}（${t.synergy.desc || '联动'}）`).join('、') : '当前暂无高度契合联动。'}<br>
     当前体力：${player.stamina}/${player.maxStamina}（每分钟恢复 ${staminaCfg.regenPerMin}）<br>
     当前修炼地点：${state.currentLocation ? state.currentLocation.name : '云隐洞府'}，环境灵气：${state.currentLocation ? `${state.currentLocation.spirit}/${state.currentLocation.maxSpirit}` : '35/35'}<br>
@@ -1472,7 +3034,9 @@ function renderEncounterBox(){
 function renderSecretRealmBox(){
   document.getElementById('secretRealmBox').innerHTML = state.secretRealm
     ? `<h3>当前秘境</h3><p>${state.secretRealm.name}<br>层数：${state.secretRealm.floor}/${state.secretRealm.floors}<br>奖励：${state.secretRealm.reward}</p>`
-    : `<h3>秘境状态</h3><p>尚未进入秘境。</p>`;
+    : state.currentLocation && state.currentLocation.mode === '灵地'
+      ? `<h3>当前灵地</h3><p>${state.currentLocation.name}<br>环境灵气：${state.currentLocation.spirit}/${state.currentLocation.maxSpirit}<br>修炼偏向：${state.currentLocation.reward || '灵气充盈'}<br>可探索层数：${state.currentLocation.floors || 0}</p><div class="mt10"><button onclick="enterCurrentSpiritLand()">进入此地探索</button></div>`
+      : `<h3>秘境状态</h3><p>尚未进入秘境。</p>`;
 }
 function renderQuestBox(){
   document.getElementById('questBox').innerHTML = `<h3>任务状态</h3><p>${state.quests.map(q=>`${q.name}：${q.claimed?'已领取':q.done?'可领取':'进行中'}`).join('<br>')}</p>`;
@@ -1503,8 +3067,26 @@ function renderInventoryBox(){
   const summaryHtml = Object.keys(summary).length ? Object.entries(summary).map(([name,count])=>`${name} × ${count}`).join('<br>') : '储物袋空空如也。';
   document.getElementById('inventoryBox').innerHTML = `<h3>储物袋摘要</h3><p>${summaryHtml}</p><div class="small mt8">同类物品已自动堆叠，详细查看与装备请前往【背包】页面。</div>`;
 }
+function colorizeLogText(text){
+  let html = String(text || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  const qualityTerms = ['神品','仙品','极品','上品','中品','凡品','混沌至宝','先天至宝','极品至宝','神器','仙器','法宝','灵器','法器'];
+  qualityTerms.forEach(term => {
+    const cls = qualityClass(term);
+    html = html.replaceAll(term, `<span class="${cls}">${term}</span>`);
+  });
+
+  html = html.replace(/【([^【】]+)】/g, (match, inner) => {
+    return `【<span class="${qualityClass(inner)}">${inner}</span>】`;
+  });
+
+  return html;
+}
 function renderResultLog(){
-  document.getElementById('resultLog').innerHTML = state.logs.map(x=>`<div class="log-item">${x}</div>`).join('');
+  document.getElementById('resultLog').innerHTML = state.logs.map(x=>`<div class="log-item">${colorizeLogText(x)}</div>`).join('');
 }
 function renderAll(){
   if(!player || !state) return;
@@ -1525,8 +3107,8 @@ function renderAll(){
   renderResultLog();
 }
 function switchTab(tab, el){
-  document.querySelectorAll('#gamePage .tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('#gamePage .page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#bottomNav .nav-item').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#gamePage > .page').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   el.classList.add('active');
 }

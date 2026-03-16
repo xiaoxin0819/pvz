@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>问道修仙录 - 本地存档版</title>
+<style>
+:root{
+  --bg:#0a1020; --panel:#141d35; --panel2:#1b2948; --line:#314a79; --text:#eef4ff; --muted:#9eb2d4;
+  --gray:#9e9e9e; --green:#71dd91; --blue:#79a9ff; --purple:#b88cff; --orange:#ffb253; --gold:#ffd966;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:radial-gradient(circle at top,#182a4f 0%,#09101d 58%);color:var(--text);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+.app{max-width:430px;min-height:100vh;margin:0 auto;padding:10px;display:flex;flex-direction:column;gap:10px}
+.page{display:none}
+.page.active{display:block}
+.panel{background:rgba(20,29,53,.96);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:0 12px 28px rgba(0,0,0,.25)}
+h1,h2,h3,p{margin:0}
+.title{font-size:26px;font-weight:700}
+.subtitle{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.badge{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:11px}
+.section-title{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700;margin-bottom:10px}
+.sub{font-size:11px;color:var(--muted);font-weight:400}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px}
+.card + .card{margin-top:8px}
+.card h3{font-size:15px;margin-bottom:8px}
+.card p,.small{font-size:12px;color:var(--muted);line-height:1.6}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{width:100%;padding:11px 12px;background:#223764;border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:14px;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.btn-gold{background:#5e471d;color:#fff0c9}
+.btn-green{background:#214a39}
+.btn-red{background:#4f2731}
+.btn-purple{background:#4d356d}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.stat{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:8px 8px}
+.label{font-size:10px;color:var(--muted)}
+.value{font-size:13px;font-weight:700;margin-top:1px}
+.bar-group{margin-bottom:8px}
+.bar-top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px}
+.bar{height:10px;background:#0d1528;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0%;transition:width .2s ease}
+.hp{background:linear-gradient(90deg,#e8667d,#f6a8b5)}
+.qi{background:linear-gradient(90deg,#5789ff,#89b0ff)}
+.exp{background:linear-gradient(90deg,#d59b34,#ffd966)}
+.log-box{background:#0f1628;border:1px solid var(--line);border-radius:14px;padding:10px;min-height:120px;max-height:24vh;overflow:auto}
+.log-item{font-size:12px;line-height:1.55;margin-bottom:8px}
+.nav{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.nav .tab{background:#1f2f55;border:1px solid var(--line);border-radius:13px;text-align:center;padding:10px 4px;font-size:11px;cursor:pointer}
+.nav .tab.active{background:#2a4677}
+.rarity-gray{color:var(--gray)} .rarity-green{color:var(--green)} .rarity-blue{color:var(--blue)} .rarity-purple{color:var(--purple)} .rarity-orange{color:var(--orange)} .rarity-gold{color:var(--gold)}
+.list{display:grid;gap:8px}
+.item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px;font-size:12px;line-height:1.55}
+.center{text-align:center}
+.mt8{margin-top:8px} .mt10{margin-top:10px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div id="startPage" class="page active">
+    <div class="panel">
+      <div class="title">问道修仙录</div>
+      <div class="subtitle">先完成开局：随机灵根、随机 3 条天命词条，然后手动开始游戏。结果会保存到本地。</div>
+      <div class="card mt10">
+        <h3>开局资质</h3>
+        <div id="startRoot" class="small">点击下方按钮生成你的开局。</div>
+      </div>
+      <div class="card mt10">
+        <h3>天命词条（按凡品→神品划分）</h3>
+        <div id="startTraits" class="small">尚未生成。</div>
+      </div>
+      <div class="grid2 mt10">
+        <button onclick="rollStart()">重新随机开局</button>
+        <button class="btn-purple" onclick="undoStartRoll()">撤销上次随机</button>
+      </div>
+      <div class="grid2 mt10">
+        <button class="btn-gold" onclick="rollBestStart()">神品开局</button>
+        <button onclick="previewStartDetail()">查看当前开局详情</button>
+      </div>
+      <div class="grid2 mt10">
+        <button class="btn-gold" id="startGameBtn" onclick="beginGame()" disabled>开始修仙</button>
+        <button onclick="loadGame()">读取本地存档</button>
+      </div>
+      <div class="grid2 mt10">
+        <button disabled>本地存档按钮已上移</button>
+        <button class="btn-red" onclick="clearSave()">清空本地存档</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gamePage" class="page">
+    <div class="panel">
+      <div class="section-title"><span>角色状态</span><span class="sub" id="realmText"></span></div>
+      <div id="heroBadges" class="badges"></div>
+      <div class="mt10">
+        <div class="bar-group">
+          <div class="bar-top"><span>气血</span><span id="hpText"></span></div>
+          <div class="bar"><div class="fill hp" id="hpBar"></div></div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-top"><span>灵气</span><span id="qiText"></span></div>
+          <div class="bar"><div class="fill qi" id="qiBar"></div></div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-top"><span>修为</span><span id="expText"></span></div>
+          <div class="bar"><div class="fill exp" id="expBar"></div></div>
+        </div>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="panel">
+      <div class="nav" style="grid-template-columns:repeat(6,1fr)">
+        <div class="tab active" onclick="switchTab('home', this)">修行</div>
+        <div class="tab" onclick="switchTab('world', this)">探索</div>
+        <div class="tab" onclick="switchTab('battle', this)">战斗</div>
+        <div class="tab" onclick="switchTab('craft', this)">百艺</div>
+        <div class="tab" onclick="switchTab('bag', this)">背包</div>
+        <div class="tab" onclick="switchTab('more', this)">更多</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title"><span>交互结果</span><span class="sub">实时反馈</span></div>
+      <div class="log-box" id="resultLog"></div>
+    </div>
+
+    <div id="tab-home" class="page active">
+      <div class="panel">
+        <div class="section-title"><span>修行</span><span class="sub">灵根、词条、修炼、境界</span></div>
+        <div class="card">
+          <h3>开局资质</h3>
+          <div id="rootTraitBox" class="small"></div>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="meditate()">打坐修炼</button>
+          <button class="btn-gold" onclick="attemptTribulation()">尝试渡劫</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-world" class="page">
+      <div class="panel">
+        <div class="section-title"><span>探索</span><span class="sub">地图、奇遇、秘境</span></div>
+        <div class="grid2">
+          <button onclick="explore()">进入探索</button>
+          <button onclick="claimQuestReward()">领取可完成任务</button>
+        </div>
+        <div class="card mt10" id="encounterBox"></div>
+        <div class="card mt10" id="secretRealmBox"></div>
+        <div class="card mt10" id="questBox"></div>
+      </div>
+    </div>
+
+    <div id="tab-battle" class="page">
+      <div class="panel">
+        <div class="section-title"><span>战斗</span><span class="sub">妖兽与世界Boss</span></div>
+        <div class="grid2">
+          <button onclick="startBattle()">主动寻敌</button>
+          <button onclick="attackMonster()">攻击</button>
+        </div>
+        <div class="grid2 mt10">
+          <button class="btn-green" onclick="usePill()">服用丹药</button>
+          <button class="btn-red" onclick="challengeWorldBoss()">挑战世界Boss</button>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="useStaminaPill()">服用体力丹</button>
+          <button onclick="restoreCurrentLocation()">恢复环境灵气</button>
+        </div>
+        <div class="card mt10" id="monsterBox"></div>
+        <div class="card mt10" id="bossBox"></div>
+      </div>
+    </div>
+
+    <div id="tab-craft" class="page">
+      <div class="panel">
+        <div class="section-title"><span>百艺</span><span class="sub">炼丹、炼器、洞府</span></div>
+        <div class="grid2">
+          <button onclick="gatherHerb()">采药</button>
+          <button onclick="mineOre()">采矿</button>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="refinePill()">炼丹</button>
+          <button onclick="forge()">炼器</button>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="upgradeCave(0)">聚灵阵</button>
+          <button onclick="upgradeCave(1)">药圃</button>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="upgradeCave(2)">地火室</button>
+          <button onclick="upgradeCave(3)">护山阵</button>
+        </div>
+        <div class="card mt10" id="caveBox"></div>
+      </div>
+    </div>
+
+    
+    <div id="tab-bag" class="page">
+      <div class="panel">
+        <div class="section-title"><span>背包</span><span class="sub">物品、装备、法宝</span></div>
+        <div class="card">
+          <h3>当前装备</h3>
+          <p id="equipBox"></p>
+        </div>
+        <div class="card mt10">
+          <h3>当前法宝</h3>
+          <p id="artifactBox"></p>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="equipSelectedWeapon()">装备选中装备</button>
+          <button onclick="equipSelectedArtifact()">装备选中法宝</button>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="useSelectedItem()">使用选中物品</button>
+          <button onclick="clearBagSelection()">取消选中</button>
+        </div>
+        <div class="card mt10">
+          <h3>背包列表</h3>
+          <div id="bagList" class="list"></div>
+        </div>
+      </div>
+    </div>
+
+<div id="tab-more" class="page">
+      <div class="panel">
+        <div class="section-title"><span>更多</span><span class="sub">宗门、灵兽、伙伴、存档</span></div>
+        <div class="grid2">
+          <button onclick="joinSectBranch(randomInt(0, sectBranches.length-1))">随机入宗</button>
+          <button onclick="buyShop(randomInt(0, sectShop.length-1))">宗门兑换</button>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="tameSpiritBeast()">收服灵兽</button>
+          <button onclick="evolveSpiritBeast()">进化灵兽</button>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="recruitCompanion()">结识伙伴</button>
+          <button onclick="captureSpiritVein()">争夺灵脉</button>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="createAuctionFromBag()">挂拍物品</button>
+          <button onclick="bidRandomAuction()">模拟竞拍</button>
+        </div>
+        <div class="grid2 mt10">
+          <button class="btn-gold" onclick="ascendToImmortal()">尝试飞升</button>
+          <button class="btn-purple" onclick="reincarnate()">兵解轮回</button>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="useStaminaPill()">服用体力丹</button>
+          <button onclick="restoreCurrentLocation()">恢复环境灵气</button>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="saveGame()">保存到本地</button>
+          <button onclick="backToStart()">返回开局页</button>
+        </div>
+        <div class="card mt10" id="moreBox"></div>
+        <div class="card mt10" id="inventoryBox"></div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<script>
+const realmTable = [
+  {name:'炼气',need:0},
+  {name:'筑基',need:30000},
+  {name:'金丹',need:300000},
+  {name:'元婴',need:3000000},
+  {name:'化神',need:15000000},
+  {name:'炼虚',need:60000000},
+  {name:'合体',need:240000000},
+  {name:'大乘',need:900000000},
+  {name:'渡劫',need:3000000000},
+  {name:'真仙',need:10000000000},
+  {name:'仙王',need:30000000000},
+  {name:'仙帝',need:100000000000},
+  {name:'道祖',need:300000000000}
+];
+const spiritualRootTiers = [
+  {tier:'凡品',chance:0.80,roots:['金灵根','木灵根','水灵根','火灵根','土灵根']},
+  {tier:'中品',chance:0.15,roots:['金灵根','木灵根','水灵根','火灵根','土灵根']},
+  {tier:'上品',chance:0.04,roots:['金灵根','木灵根','水灵根','火灵根','土灵根']},
+  {tier:'极品（天灵根）',chance:0.009,roots:['天灵根']},
+  {tier:'极品（变异）',chance:0.0009,roots:['雷灵根','冰灵根','风灵根']},
+  {tier:'仙品',chance:0.00009,roots:['仙灵根']},
+  {tier:'神品',chance:0.00001,roots:['混沌灵根']}
+];
+const rootEffects = {
+  '凡品金灵根':{cultivate:0.6,encounter:0.9,awakenable:false},'凡品木灵根':{cultivate:0.6,encounter:0.9,awakenable:false},
+  '凡品水灵根':{cultivate:0.6,encounter:0.9,awakenable:false},'凡品火灵根':{cultivate:0.6,encounter:0.9,awakenable:false},
+  '凡品土灵根':{cultivate:0.6,encounter:0.9,awakenable:false},'中品金灵根':{cultivate:0.8,encounter:1.0,awakenable:false},
+  '中品木灵根':{cultivate:0.8,encounter:1.0,awakenable:false},'中品水灵根':{cultivate:0.8,encounter:1.0,awakenable:false},
+  '中品火灵根':{cultivate:0.8,encounter:1.0,awakenable:false},'中品土灵根':{cultivate:0.8,encounter:1.0,awakenable:false},
+  '上品金灵根':{cultivate:1.0,encounter:1.05,awakenable:false},'上品木灵根':{cultivate:1.0,encounter:1.05,awakenable:false},
+  '上品水灵根':{cultivate:1.0,encounter:1.05,awakenable:false},'上品火灵根':{cultivate:1.0,encounter:1.05,awakenable:false},
+  '上品土灵根':{cultivate:1.0,encounter:1.05,awakenable:false},'天灵根':{cultivate:10,encounter:1.4,awakenable:true,awakenMult:10},
+  '雷灵根':{cultivate:50,encounter:1.9,awakenable:true,awakenMult:20},'冰灵根':{cultivate:50,encounter:1.9,awakenable:true,awakenMult:20},
+  '风灵根':{cultivate:50,encounter:1.8,awakenable:true,awakenMult:15},'仙灵根':{cultivate:1000,encounter:3,awakenable:true,awakenMult:100},
+  '混沌灵根':{cultivate:1000000,encounter:5,awakenable:true,awakenMult:1000}
+};
+const traitPool = [
+  {name:'筋骨强健', tier:'凡品', bonus:{maxHp:10}},
+  {name:'气运平平', tier:'凡品', bonus:{fate:-2}},
+  {name:'修行迟缓', tier:'凡品', bonus:{cultivate:-0.10}},
+  {name:'灵气亲和', tier:'凡品', bonus:{maxQi:10}},
+  {name:'悟性不错', tier:'凡品', bonus:{cultivate:0.10}},
+
+  {name:'丹道奇才', tier:'中品', bonus:{alchemy:1, cultivate:0.20}},
+  {name:'器道天才', tier:'中品', bonus:{forge:1, cultivate:0.20}},
+  {name:'鸿运当头', tier:'中品', bonus:{fate:6, encounter:0.20}},
+  {name:'长生之体', tier:'中品', bonus:{lifespan:120, maxHp:20}},
+  {name:'御风而行', tier:'中品', bonus:{encounter:0.20}},
+
+  {name:'悟性超凡', tier:'上品', bonus:{cultivate:0.30}},
+  {name:'战神转世', tier:'上品', bonus:{atk:15}},
+  {name:'大道宠儿', tier:'上品', bonus:{cultivate:0.30, fate:8}},
+  {name:'斗战圣体', tier:'上品', bonus:{atk:18, maxHp:40}},
+  {name:'药王传承', tier:'上品', bonus:{alchemy:2, cultivate:0.30}},
+  {name:'器纹洞察', tier:'上品', bonus:{forge:2, cultivate:0.30}},
+
+  {name:'天命之子', tier:'极品', bonus:{fate:15, encounter:0.50}},
+  {name:'寒髓之体', tier:'极品', bonus:{def:10, maxHp:60}},
+  {name:'引雷入体', tier:'极品', bonus:{atk:26}},
+  {name:'不朽道体', tier:'极品', bonus:{maxHp:220}},
+  {name:'太虚灵体', tier:'极品', bonus:{cultivate:0.50, maxQi:60}},
+
+  {name:'万界主宰', tier:'仙品', bonus:{atk:40, fate:18}},
+  {name:'混沌道体', tier:'仙品', bonus:{cultivate:1.00, encounter:0.50, atk:25}},
+  {name:'天道代行者', tier:'仙品', bonus:{cultivate:1.00}},
+  {name:'仙王命格', tier:'仙品', bonus:{maxHp:300, maxQi:120, cultivate:1.00}},
+
+  {name:'大道之子', tier:'神品', bonus:{cultivate:5.00, fate:30}},
+  {name:'混沌命格', tier:'神品', bonus:{cultivate:5.00, encounter:1.00}},
+  {name:'万法归一', tier:'神品', bonus:{atk:80, def:20, maxHp:500}},
+  {name:'天命唯一', tier:'神品', bonus:{cultivate:5.00, atk:50, fate:20}}
+];
+const rootTraitSynergy = {
+  '雷灵根':{'引雷入体':{atk:25,cultivate:0.6,desc:'雷霆淬体'}},
+  '冰灵根':{'寒髓之体':{maxHp:80,def:6,desc:'寒气护体'}},
+  '风灵根':{'御风而行':{encounter:0.15,cultivate:0.25,desc:'御风无痕'}},
+  '天灵根':{'大道宠儿':{cultivate:0.8,desc:'天道亲和'}},
+  '混沌灵根':{'混沌道体':{cultivate:2.0,encounter:0.3,atk:20,desc:'混沌加护'},'天命之子':{encounter:0.25,desc:'命数暴涨'}}
+};
+const herbPool = [
+  {name:'凝露草',rarity:'凡',qi:2},{name:'赤阳花',rarity:'黄',qi:4},{name:'玄冰叶',rarity:'玄',qi:6},{name:'紫府藤',rarity:'地',qi:9},{name:'天心果',rarity:'天',qi:14}
+];
+const orePool = [
+  {name:'黑铁',rarity:'凡',power:2},{name:'寒晶砂',rarity:'黄',power:4},{name:'流火铜',rarity:'玄',power:6},{name:'星纹银',rarity:'地',power:9},{name:'太虚金',rarity:'天',power:13}
+];
+const monsterPool = [
+  {name:'山魈',hp:18,atk:4,exp:10,loot:'妖丹碎片',tier:'普通'},
+  {name:'毒沼狼',hp:28,atk:6,exp:16,loot:'狼牙',tier:'普通'},
+  {name:'赤焰蟒',hp:38,atk:8,exp:22,loot:'火鳞',tier:'精英'},
+  {name:'古墓尸修',hp:55,atk:11,exp:35,loot:'阴骨',tier:'精英'},
+  {name:'裂空妖禽',hp:75,atk:14,exp:48,loot:'羽晶',tier:'首领'},
+  {name:'玄雷蛟',hp:125,atk:21,exp:90,loot:'蛟角',tier:'首领'}
+];
+const maps = [
+  {name:'青岚山',type:'采药',danger:1,reward:'灵草',spirit:20},
+  {name:'落炎谷',type:'采矿',danger:2,reward:'矿石',spirit:30},
+  {name:'迷雾泽',type:'打怪',danger:3,reward:'妖兽材料',spirit:45},
+  {name:'古修遗府',type:'探索',danger:4,reward:'随机奇遇',spirit:70},
+  {name:'天裂秘境',type:'综合',danger:5,reward:'高阶资源',spirit:110}
+];
+const encounterTemplates = [
+  {title:'山野遗物',tier:'凡品',intro:'你在山野间发现一名散修遗留的旧包裹。',options:['谨慎查看','直接收取','继续搜寻']},
+  {title:'溪谷灵泉',tier:'凡品',intro:'一口灵泉缓缓流淌，周围散落着少量灵石。',options:['汲取灵气','挖掘泉眼','收集碎石']},
+  {title:'残破洞府',tier:'中品',intro:'你发现一处残破洞府，里面似乎还有些有用资源。',options:['入内搜索','稳步探查','尝试破阵']},
+  {title:'流光宝箱',tier:'中品',intro:'一道流光坠地，化为一个灵纹宝箱。',options:['立即开启','观察纹路','以灵气催动']},
+  {title:'古修手札',tier:'上品',intro:'你在遗迹角落发现了一卷保存完好的古修手札。',options:['参悟手札','拆解内容','收入囊中']},
+  {title:'灵脉余波',tier:'上品',intro:'地下灵脉震荡后，有大量灵机浮现。',options:['引导吸收','稳固灵脉','收集结晶']},
+  {title:'天道投影',tier:'极品',intro:'你看见一缕会思考的天道残影，正在注视你的命数。',options:['叩问大道','献上灵石','强行参悟']},
+  {title:'上古器灵',tier:'极品',intro:'沉睡万年的器灵自碎裂神兵中苏醒，似乎认可了你。',options:['以诚相待','血祭契约','静观其变']},
+  {title:'未来身回响',tier:'仙品',intro:'你听见来自未来的自己在低语，似乎要把命运提前赠与你。',options:['接受指引','拒绝干扰','逆转因果']},
+  {title:'混沌裂隙',tier:'神品',intro:'一道混沌裂隙浮现，其中流淌着难以想象的本源气息。',options:['进入裂隙','远程窥探','稳定空间']}
+];
+const divineArtifacts = [
+  {name:'太初混沌钟',rank:'极品至宝',effect:'攻击+18 防御+6'},
+  {name:'九转长生莲',rank:'极品至宝',effect:'寿元+120 气血上限+50'},
+  {name:'天衍道纹炉',rank:'仙品至宝',effect:'炼丹+2 炼器+1'},
+  {name:'虚空遁界符',rank:'仙品至宝',effect:'探索+2 灵气上限+20'},
+  {name:'诸天剑胚',rank:'仙品至宝',effect:'终极本命剑胚'}
+];
+const chaosTreasures = [
+  {name:'混沌灵宝·太虚源轮',rank:'神品混沌灵宝',effect:'气血、灵气、攻击全面暴涨'},
+  {name:'混沌灵宝·玄黄道种',rank:'神品混沌灵宝',effect:'修炼速度与气运大幅提升'},
+  {name:'混沌灵宝·万界胚胎',rank:'神品混沌灵宝',effect:'突破、奇遇、成长全面强化'}
+];
+const sectBranches = [
+  {name:'青玄剑峰',focus:'剑修',bonus:{atk:12}},
+  {name:'离火丹殿',focus:'丹修',bonus:{alchemy:2}},
+  {name:'万象器谷',focus:'器修',bonus:{forge:2}},
+  {name:'镇岳体宗',focus:'体修',bonus:{def:8,maxHp:60}},
+  {name:'御灵山',focus:'御兽',bonus:{encounter:0.1}}
+];
+const sectShop = [
+  {name:'小还丹',cost:10,type:'pill'},
+  {name:'聚灵符',cost:12,type:'item'},
+  {name:'灵矿包',cost:15,type:'ore'},
+  {name:'丹道残卷',cost:20,type:'manual'}
+];
+const caveUpgrades = [
+  {name:'聚灵阵',cost:50},{name:'药圃',cost:40},{name:'地火室',cost:60},{name:'护山阵',cost:80}
+];
+const spiritBeasts = [
+  {name:'雷麟兽',bonus:{atk:12},stage:'幼体'},
+  {name:'寒霜狐',bonus:{def:8},stage:'幼体'},
+  {name:'青羽灵雀',bonus:{encounter:0.1},stage:'幼体'},
+  {name:'玄甲龟',bonus:{maxHp:80},stage:'幼体'}
+];
+const beastGrowthStages = ['幼体','成长期','成熟体','王兽','圣兽'];
+const companionPool = [
+  {name:'苏青璃',role:'剑侍',bonus:{atk:8}},
+  {name:'宁道玄',role:'护道人',bonus:{def:10}},
+  {name:'白芷',role:'丹师',bonus:{alchemy:2}},
+  {name:'墨麟',role:'灵兽',bonus:{encounter:0.12}}
+];
+const spiritualVeins = [
+  {name:'赤炎灵脉',output:'火属性材料'},
+  {name:'玄冰灵脉',output:'冰属性材料'},
+  {name:'雷极灵脉',output:'雷系资源'},
+  {name:'太虚灵脉',output:'空间材料'}
+];
+const worldBossPool = [
+  {name:'万雷妖帝',hp:5000,atk:120,tier:'帝级',drop:'雷帝核心'},
+  {name:'太古魔猿',hp:6500,atk:140,tier:'远古',drop:'魔猿精血'},
+  {name:'虚空鲲祖',hp:8000,atk:160,tier:'虚空',drop:'鲲祖之鳞'}
+];
+const secretRealms = [
+  {name:'九幽秘境',floors:30,reward:'阴属性材料'},
+  {name:'太古战场',floors:40,reward:'远古法宝'},
+  {name:'虚空裂界',floors:50,reward:'空间类至宝'}
+];
+
+let player = null;
+let state = null;
+let startData = null;
+let previousStartData = null;
+let selectedBagIndex = -1;
+let selectedBagType = '';
+
+function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function nextRealmNeed(exp){ for(const r of realmTable){ if(exp < r.need) return r.need; } return realmTable[realmTable.length-1].need; }
+function realmFromExp(exp){ let cur = realmTable[0].name; for(const r of realmTable){ if(exp >= r.need) cur = r.name; } return cur; }
+function realmIndexFromName(name){ return Math.max(0, realmTable.findIndex(r => r.name === name)); }
+function applyRealmGrowth(oldRealm, newRealm){
+  const oldIdx = realmIndexFromName(oldRealm);
+  const newIdx = realmIndexFromName(newRealm);
+  if(newIdx <= oldIdx) return;
+  for(let i = oldIdx + 1; i <= newIdx; i++){
+    const realmName = realmTable[i].name;
+    const growthMap = {
+      '筑基': {maxHp:25,maxQi:12,atk:3,def:2,fate:1},
+      '金丹': {maxHp:35,maxQi:18,atk:4,def:2,fate:1},
+      '元婴': {maxHp:50,maxQi:25,atk:6,def:3,fate:2},
+      '化神': {maxHp:70,maxQi:35,atk:8,def:4,fate:2},
+      '炼虚': {maxHp:90,maxQi:45,atk:10,def:5,fate:3},
+      '合体': {maxHp:120,maxQi:60,atk:14,def:6,fate:3},
+      '大乘': {maxHp:160,maxQi:80,atk:18,def:8,fate:4},
+      '渡劫': {maxHp:220,maxQi:110,atk:24,def:10,fate:5},
+      '真仙': {maxHp:300,maxQi:150,atk:32,def:12,fate:6},
+      '仙王': {maxHp:420,maxQi:220,atk:42,def:15,fate:8},
+      '仙帝': {maxHp:560,maxQi:300,atk:56,def:20,fate:10},
+      '道祖': {maxHp:800,maxQi:450,atk:80,def:28,fate:15}
+    };
+    const g = growthMap[realmName];
+    if(!g) continue;
+    player.maxHp += g.maxHp;
+    player.maxQi += g.maxQi;
+    player.atk += g.atk;
+    player.def += g.def;
+    player.fate += g.fate;
+    player.hp = player.maxHp;
+    player.qi = player.maxQi;
+    addLog(`你突破至【${realmName}】！属性提升：气血+${g.maxHp}，灵气+${g.maxQi}，攻击+${g.atk}，防御+${g.def}，气运+${g.fate}。`);
+  }
+  player.realmIndex = newIdx;
+}
+function rarityMultiplier(r){ return ({'凡':1,'黄':1.3,'玄':1.6,'地':2,'天':2.8}[r] || 1); }
+function countByName(items){ const o={}; items.forEach(i=>o[i.name]=(o[i.name]||0)+1); return o; }
+function fullRootKey(root){ return ['天灵根','雷灵根','冰灵根','风灵根','仙灵根','混沌灵根'].includes(root.name) ? root.name : `${root.tier}${root.name}`; }
+
+function realmStaminaConfig(realm){
+  const table = {
+    '炼气': {max:300, regenPerMin:10},
+    '筑基': {max:600, regenPerMin:14},
+    '金丹': {max:1200, regenPerMin:20},
+    '元婴': {max:2400, regenPerMin:28},
+    '化神': {max:4800, regenPerMin:40},
+    '炼虚': {max:9600, regenPerMin:56},
+    '合体': {max:19200, regenPerMin:80},
+    '大乘': {max:38400, regenPerMin:112},
+    '渡劫': {max:76800, regenPerMin:160},
+    '真仙': {max:153600, regenPerMin:224},
+    '仙王': {max:307200, regenPerMin:320},
+    '仙帝': {max:614400, regenPerMin:448},
+    '道祖': {max:1228800, regenPerMin:640}
+  };
+  return table[realm] || table['炼气'];
+}
+function syncStaminaByTime(){
+  if(!player) return;
+  const cfg = realmStaminaConfig(player.realm);
+  if(!player.lastStaminaTs) player.lastStaminaTs = Date.now();
+  player.maxStamina = cfg.max;
+  const now = Date.now();
+  const minutes = Math.floor((now - player.lastStaminaTs) / 60000);
+  if(minutes > 0){
+    player.stamina = Math.min(player.maxStamina, (player.stamina ?? player.maxStamina) + minutes * cfg.regenPerMin);
+    player.lastStaminaTs += minutes * 60000;
+  }
+  if(player.stamina > player.maxStamina) player.stamina = player.maxStamina;
+}
+function spendStamina(cost, actionName){
+  syncStaminaByTime();
+  if((player.stamina ?? 0) < cost){
+    const cfg = realmStaminaConfig(player.realm);
+    addLog(`${actionName}失败：体力不足。当前体力 ${player.stamina}/${player.maxStamina}，每分钟恢复 ${cfg.regenPerMin} 点。`);
+    renderAll();
+    return false;
+  }
+  player.stamina -= cost;
+  return true;
+}
+function realmCultivationFactor(realm){
+  const table = {
+    '炼气':1,'筑基':1.8,'金丹':2.8,'元婴':4.2,'化神':6.2,'炼虚':9.0,
+    '合体':13.0,'大乘':18.0,'渡劫':26.0,'真仙':38.0,'仙王':55.0,'仙帝':80.0,'道祖':120.0
+  };
+  return table[realm] || 1;
+}
+function ensureLocation(){
+  if(!state.currentLocation) state.currentLocation = {name:'云隐洞府', spirit:35, maxSpirit:35};
+  if(state.currentLocation.spirit > state.currentLocation.maxSpirit) state.currentLocation.spirit = state.currentLocation.maxSpirit;
+}
+function consumeEnvironmentSpirit(amount, actionName){
+  ensureLocation();
+  if(state.currentLocation.spirit < amount){
+    addLog(`${actionName}失败：当前地点【${state.currentLocation.name}】环境灵气不足。剩余灵气 ${state.currentLocation.spirit}/${state.currentLocation.maxSpirit}。`);
+    renderAll();
+    return false;
+  }
+  state.currentLocation.spirit -= amount;
+  return true;
+}
+function restoreLocationSpirit(){
+  ensureLocation();
+  const regen = Math.max(1, Math.floor(state.currentLocation.maxSpirit * 0.08));
+  state.currentLocation.spirit = Math.min(state.currentLocation.maxSpirit, state.currentLocation.spirit + regen);
+}
+function qualityClass(name){
+  if(name.includes('混沌') || name.includes('神品') || name.includes('神')) return 'rarity-gold';
+  if(name.includes('仙品') || name.includes('仙灵根') || name.includes('仙') || name.includes('雷灵根') || name.includes('冰灵根') || name.includes('风灵根')) return 'rarity-orange';
+  if(name.includes('极品') || name.includes('天灵根')) return 'rarity-purple';
+  if(name.includes('上品')) return 'rarity-blue';
+  if(name.includes('中品')) return 'rarity-green';
+  return 'rarity-gray';
+}
+
+function generateSpiritualRoot(){
+  const total = spiritualRootTiers.reduce((s,t)=>s+t.chance,0);
+  let roll = Math.random()*total;
+  for(const t of spiritualRootTiers){ roll -= t.chance; if(roll<=0) return {name:rand(t.roots),tier:t.tier}; }
+  return {name:'金灵根',tier:'凡品'};
+}
+function generateDestinyTraits(root){
+  const out=[]; const used=new Set();
+  while(out.length<3){
+    const t=rand(traitPool);
+    if(used.has(t.name)) continue;
+    used.add(t.name);
+    const synergy = rootTraitSynergy[root.name]?.[t.name] || null;
+    out.push({...t, synergy});
+  }
+  return out;
+}
+
+function rollStart(){
+  if(startData){
+    previousStartData = JSON.parse(JSON.stringify(startData));
+  }
+  const root = generateSpiritualRoot();
+  const traits = generateDestinyTraits(root);
+  startData = { root, traits };
+  renderStartPreview();
+  document.getElementById('startGameBtn').disabled = false;
+
+  const isHighRoot = root.name === '天灵根' || root.name === '雷灵根' || root.name === '冰灵根' || root.name === '风灵根' || root.name === '仙灵根' || root.name === '混沌灵根';
+  if(isHighRoot){
+    setTimeout(()=>{
+      const keepRolling = confirm(`你本次随机到了高品质灵根：${root.tier} ${root.name}。\n\n点击“确定”继续下一次随机\n点击“取消”保留这次结果`);
+      if(keepRolling){
+        rollStart();
+      }
+    }, 10);
+  }
+}
+
+function rollBestStart(){
+  if(startData){
+    previousStartData = JSON.parse(JSON.stringify(startData));
+  }
+  const root = { name:'混沌灵根', tier:'神品' };
+  const godTraits = traitPool.filter(t => t.tier === '神品');
+  const picked = [];
+  const used = new Set();
+  while(picked.length < 3 && godTraits.length){
+    const t = rand(godTraits);
+    if(used.has(t.name)) continue;
+    used.add(t.name);
+    const synergy = rootTraitSynergy[root.name]?.[t.name] || null;
+    picked.push({ ...t, synergy });
+  }
+  while(picked.length < 3){
+    const fallback = {name:`神品词条·${picked.length+1}`, tier:'神品', bonus:{cultivate:5.0, atk:30, fate:10}};
+    picked.push(fallback);
+  }
+  startData = { root, traits:picked };
+  renderStartPreview();
+  document.getElementById('startGameBtn').disabled = false;
+}
+function renderStartPreview(){
+  if(!startData) return;
+  const root = startData.root;
+  const traits = startData.traits;
+  document.getElementById('startRoot').innerHTML = `你的灵根为：<span class="${qualityClass(root.name + root.tier)}">${root.tier} ${root.name}</span>`;
+  document.getElementById('startTraits').innerHTML = traits.map(t=>`<span class="${qualityClass(t.tier)}">${t.tier}</span>·${t.name}${t.synergy ? '（契合）' : ''}`).join('<br>');
+}
+function undoStartRoll(){
+  if(!previousStartData){
+    alert('当前没有可撤销的上一次随机结果');
+    return;
+  }
+  const current = startData ? JSON.parse(JSON.stringify(startData)) : null;
+  startData = JSON.parse(JSON.stringify(previousStartData));
+  previousStartData = current;
+  renderStartPreview();
+  document.getElementById('startGameBtn').disabled = false;
+}
+function previewStartDetail(){
+  if(!startData){
+    alert('请先随机一次开局');
+    return;
+  }
+  const root = startData.root;
+  const traits = startData.traits.map(t=>`${t.tier}·${t.name}${t.synergy ? '（契合：' + (t.synergy.desc || '联动') + '）' : ''}`).join('\n');
+  alert(`当前灵根：${root.tier} ${root.name}\n\n当前词条：\n${traits}`);
+}
+function initNewGame(){
+  player = {
+    name:'无名散修', hp:100, maxHp:100, qi:20, maxQi:20, atk:8, def:2, exp:0, spiritStone:30,
+    realmIndex:0,
+    realm:'炼气', sect:'云隐小宗', contribution:0, fate:0, lifespan:80, alchemyLv:1, forgeLv:1, explorationLv:1,
+    stamina:300, maxStamina:300, lastStaminaTs:Date.now(),
+    caveLevel:1, reincarnation:0, ascension:0, path:'未定', weapon:null, natalArtifact:'本命飞剑', immortalRealm:null,
+    spiritRoot:startData.root, traits:startData.traits
+  };
+  state = {
+    bag:[
+      {type:'herb',name:'凝露草',rarity:'凡',qi:2},
+      {type:'herb',name:'赤阳花',rarity:'黄',qi:4},
+      {type:'ore',name:'黑铁',rarity:'凡',power:2},
+      {type:'manual',name:'吐纳诀'}
+    ],
+    logs:[], currentMonster:null, encounter:null, artifacts:[], worldBuff:{encounterBonus:0,luckyAura:0},
+    stats:{herbs:0,kills:0,pills:0,explores:0,forge:0,encounters:0,realms:0},
+    quests:[
+      {id:1,name:'宗门采药',desc:'收集 3 份灵草',stat:'herbs',need:3,done:false,claimed:false},
+      {id:2,name:'试炼斩妖',desc:'击败 2 只妖兽',stat:'kills',need:2,done:false,claimed:false},
+      {id:3,name:'初习丹道',desc:'成功炼制 1 枚丹药',stat:'pills',need:1,done:false,claimed:false},
+      {id:4,name:'秘境试锋',desc:'完成 1 次秘境探索',stat:'realms',need:1,done:false,claimed:false}
+    ],
+    spiritBeast:null, companion:null, secretRealm:null, ownedVein:null, pendingWorldBoss:null,
+    auctionRecords:[],
+    currentLocation:{name:'云隐洞府', spirit:35, maxSpirit:35}
+  };
+  applyInitialBonuses();
+  player.realmIndex = realmIndexFromName(player.realm);
+  addLog(`你踏入修真界，当前资质为【${player.spiritRoot.tier} ${player.spiritRoot.name}】。`);
+  addLog(`你的三条天命词条为：${player.traits.map(t=>`${t.tier}·${t.name}`).join('、')}。`);
+}
+
+function applyInitialBonuses(){
+  const cfg = rootEffects[fullRootKey(player.spiritRoot)] || {cultivate:1,encounter:1,awakenable:false};
+  player.cultivateRate = cfg.cultivate;
+  player.encounterRateBonus = cfg.encounter - 1;
+  player.awakenable = !!cfg.awakenable;
+  player.awakenMult = cfg.awakenMult || 1;
+  player.traits.forEach(t=>{
+    const b=t.bonus||{};
+    if(b.maxHp) player.maxHp+=b.maxHp;
+    if(b.maxQi) player.maxQi+=b.maxQi;
+    if(b.atk) player.atk+=b.atk;
+    if(b.def) player.def+=b.def;
+    if(b.fate) player.fate+=b.fate;
+    if(b.lifespan) player.lifespan+=b.lifespan;
+    if(b.alchemy) player.alchemyLv+=b.alchemy;
+    if(b.forge) player.forgeLv+=b.forge;
+    if(b.encounter) player.encounterRateBonus+=b.encounter;
+    if(b.cultivate) player.cultivateRate+=b.cultivate;
+    if(t.synergy){
+      const s=t.synergy;
+      if(s.maxHp) player.maxHp+=s.maxHp;
+      if(s.atk) player.atk+=s.atk;
+      if(s.def) player.def+=s.def;
+      if(s.encounter) player.encounterRateBonus+=s.encounter;
+      if(s.cultivate) player.cultivateRate+=s.cultivate;
+    }
+  });
+  player.hp=player.maxHp;
+  player.qi=player.maxQi;
+}
+
+function beginGame(){
+  if(!startData) return;
+  initNewGame();
+  document.getElementById('startPage').classList.remove('active');
+  document.getElementById('gamePage').classList.add('active');
+  saveGame();
+  renderAll();
+}
+
+function backToStart(){
+  document.getElementById('gamePage').classList.remove('active');
+  document.getElementById('startPage').classList.add('active');
+}
+
+function addLog(text){
+  state.logs.unshift(text);
+  state.logs = state.logs.slice(0,120);
+  renderResultLog();
+}
+function gainExp(base){
+  const extra = player.cultivateBonus || 0;
+  const gain = Math.max(1, Math.floor(base * (player.cultivateRate + extra)));
+  const oldRealm = player.realm;
+  player.exp += gain;
+  player.realm = realmFromExp(player.exp);
+  if(player.realm !== oldRealm){
+    applyRealmGrowth(oldRealm, player.realm);
+  }
+  return gain;
+}
+function grantStats(patch){
+  Object.keys(patch).forEach(k=>state.stats[k]=(state.stats[k]||0)+patch[k]);
+  state.quests.forEach(q=>{ if(!q.done && (state.stats[q.stat]||0) >= q.need) q.done = true; });
+}
+
+function meditate(){
+  if(!spendStamina(5, '修炼')) return;
+  ensureLocation();
+  const spiritCost = Math.max(6, Math.floor(state.currentLocation.maxSpirit * 0.12));
+  if(!consumeEnvironmentSpirit(spiritCost, '修炼')) return;
+  const base = Math.max(2, Math.floor(state.currentLocation.maxSpirit * 0.22));
+  const gain = gainExp(Math.floor(base * realmCultivationFactor(player.realm)));
+  player.lifespan = Math.max(1, player.lifespan-0.05);
+  addLog(`你在【${state.currentLocation.name}】修炼，吸纳环境灵气 ${spiritCost} 点，修为 +${gain}。当前环境灵气 ${state.currentLocation.spirit}/${state.currentLocation.maxSpirit}。`);
+  saveGame(); renderAll();
+}
+function gatherHerb(){
+  if(!spendStamina(5, '采药')) return;
+  const herb=rand(herbPool);
+  state.bag.push({type:'herb',...herb});
+  player.qi = Math.max(0, player.qi-2);
+  grantStats({herbs:1});
+  addLog(`你采得灵草【${herb.name}】。`);
+  saveGame(); renderAll();
+}
+function mineOre(){
+  if(!spendStamina(5, '采矿')) return;
+  const ore=rand(orePool);
+  state.bag.push({type:'ore',...ore});
+  player.qi = Math.max(0, player.qi-3);
+  addLog(`你采得矿材【${ore.name}】。`);
+  saveGame(); renderAll();
+}
+
+function triggerEncounter(sourceMap){
+  const luck = player.fate * 0.002 + player.explorationLv * 0.004 + state.worldBuff.encounterBonus + player.encounterRateBonus;
+  const roll = Math.random();
+  let tier = '凡品';
+  if(roll < Math.min(0.003 + luck * 0.08, 0.01)) tier = '神品';
+  else if(roll < Math.min(0.012 + luck * 0.12, 0.03)) tier = '仙品';
+  else if(roll < Math.min(0.045 + luck * 0.2, 0.10)) tier = '极品';
+  else if(roll < 0.22 + luck * 0.25) tier = '上品';
+  else if(roll < 0.48 + luck * 0.35) tier = '中品';
+  const pool = encounterTemplates.filter(x => x.tier === tier);
+  const tpl = rand(pool.length ? pool : encounterTemplates.filter(x => x.tier === '凡品'));
+  state.encounter = {...tpl, source:sourceMap.name};
+  grantStats({encounters:1});
+  addLog(`你在【${sourceMap.name}】触发了【${tpl.tier}奇遇】${tpl.title}。`);
+}
+function resolveEncounter(choice){
+  if(!state.encounter) return;
+  const tier = state.encounter.tier;
+  if(tier === '凡品' || tier === '中品' || tier === '上品'){
+    const stoneMap = { '凡品': 12, '中品': 28, '上品': 60 };
+    const expMap = { '凡品': 8, '中品': 18, '上品': 36 };
+    const staminaPillMap = {
+      '凡品': {name:'回元散', stamina:40},
+      '中品': {name:'养元丹', stamina:90},
+      '上品': {name:'生生造化丹', stamina:180}
+    };
+    const equipMap = {
+      '凡品': {name:'凡品法器·散修短刃', tier:'凡品法器'},
+      '中品': {name:'中品灵器·流光佩', tier:'中品灵器'},
+      '上品': {name:'上品法宝·青霄环', tier:'上品法宝'}
+    };
+    const gain = gainExp(expMap[tier] + player.explorationLv * 2);
+    player.spiritStone += stoneMap[tier];
+    const gotPill = Math.random() < (tier === '上品' ? 0.45 : tier === '中品' ? 0.30 : 0.18);
+    const gotEquip = Math.random() < (tier === '上品' ? 0.55 : tier === '中品' ? 0.35 : 0.2);
+    const rewards = [`修为 +${gain}`, `灵石 +${stoneMap[tier]}`];
+    if(gotEquip){
+      state.bag.push({type:'artifact', ...equipMap[tier]});
+      rewards.push(`【${equipMap[tier].name}】`);
+    }
+    if(gotPill){
+      state.bag.push({type:'staminaPill', ...staminaPillMap[tier]});
+      rewards.push(`【${staminaPillMap[tier].name}】`);
+    }
+    addLog(`你选择【${choice}】，获得${tier}奇遇奖励：${rewards.join('，')}。`);
+  }else if(tier === '极品' || tier === '仙品'){
+    const treasureChance = tier === '极品' ? 0.22 : 0.42;
+    if(Math.random() < treasureChance){
+      const art = rand(divineArtifacts.filter(x => tier === '极品' ? x.rank.includes('极品') || x.rank.includes('仙品') : true));
+      state.artifacts.push(art);
+      state.bag.push({type:'treasure', name:art.name, tier:art.rank});
+      if(art.name==='太初混沌钟'){ player.atk+=18; player.def+=6; player.fate+=8; }
+      if(art.name==='九转长生莲'){ player.lifespan+=120; player.maxHp+=50; player.hp+=50; }
+      if(art.name==='天衍道纹炉'){ player.alchemyLv+=2; player.forgeLv+=1; }
+      if(art.name==='虚空遁界符'){ player.explorationLv+=2; player.maxQi+=20; player.qi+=20; player.fate+=10; }
+      if(art.name==='诸天剑胚'){ player.atk+=26; player.weapon={name:'诸天剑胚',power:26}; }
+      if(Math.random() < 0.5){
+        const highPill = tier === '仙品' ? {name:'九转回天丹', stamina:380} : {name:'玄元续命丹', stamina:220};
+        state.bag.push({type:'staminaPill', ...highPill});
+        addLog(`你选择【${choice}】，从【${tier}奇遇】中获得至宝【${art.name}】与体力丹药【${highPill.name}】！`);
+      }else{
+        addLog(`你选择【${choice}】，从【${tier}奇遇】中获得至宝【${art.name}】！`);
+      }
+    }else{
+      const gain = gainExp(tier === '极品' ? 60 : 120);
+      player.spiritStone += tier === '极品' ? 120 : 260;
+      player.fate += tier === '极品' ? 2 : 4;
+      addLog(`你选择【${choice}】，虽然没有得到至宝，但仍获得大量收益：修为 +${gain}，灵石 +${tier === '极品' ? 120 : 260}。`);
+    }
+  }else if(tier === '神品'){
+    if(Math.random() < 0.65){
+      const chaos = rand(chaosTreasures);
+      state.artifacts.push(chaos);
+      state.bag.push({type:'chaosTreasure', name:chaos.name, tier:chaos.rank});
+      if(chaos.name.includes('太虚源轮')){ player.maxHp += 180; player.maxQi += 90; player.atk += 28; player.hp = player.maxHp; player.qi = player.maxQi; }
+      if(chaos.name.includes('玄黄道种')){ player.cultivateBonus = (player.cultivateBonus || 0) + 0.8; player.fate += 15; }
+      if(chaos.name.includes('万界胚胎')){ player.atk += 20; player.def += 10; player.explorationLv += 2; player.alchemyLv += 1; player.forgeLv += 1; }
+      state.bag.push({type:'staminaPill', name:'混沌回天丹', stamina:880});
+      addLog(`你选择【${choice}】，触发【神品奇遇】，获得混沌灵宝【${chaos.name}】与【混沌回天丹】！`);
+    }else{
+      const gain = gainExp(220);
+      player.spiritStone += 520;
+      player.fate += 8;
+      addLog(`你选择【${choice}】，虽然错失混沌灵宝，但仍从神品奇遇中获得修为 +${gain}、灵石 +520。`);
+    }
+  }
+  state.encounter = null;
+  saveGame(); renderAll();
+}
+
+function enterSecretRealm(){
+  const r=structuredClone(rand(secretRealms));
+  r.floor=randomInt(1,r.floors);
+  state.secretRealm=r;
+  grantStats({realms:1});
+  addLog(`你进入【${r.name}】第 ${r.floor} 层。`);
+}
+function maybeWorldEvent(){
+  const roll=Math.random();
+  if(roll<0.08){
+    state.pendingWorldBoss=structuredClone(rand(worldBossPool));
+    addLog(`天地震动！世界Boss【${state.pendingWorldBoss.name}】降临。`);
+  }
+}
+function explore(){
+  if(!spendStamina(5, '探索')) return;
+  const map=structuredClone(rand(maps));
+  state.currentLocation = {name:map.name, spirit:map.spirit, maxSpirit:map.spirit};
+  const rate=0.15 + player.explorationLv*0.03 + player.fate*0.01 + state.worldBuff.encounterBonus + player.encounterRateBonus;
+  const roll=Math.random();
+  if(roll<rate) triggerEncounter(map);
+  else if(roll<0.32+rate){
+    const herb=rand(herbPool);
+    state.bag.push({type:'herb',...herb});
+    addLog(`你在【${map.name}】发现【${herb.name}】。`);
+  }else if(roll<0.56+rate){
+    const ore=rand(orePool);
+    state.bag.push({type:'ore',...ore});
+    addLog(`你在【${map.name}】发现【${ore.name}】。`);
+  }else if(roll<0.82+rate){
+    state.currentMonster=structuredClone(rand(monsterPool));
+    addLog(`你在【${map.name}】遭遇了 ${state.currentMonster.name}！`);
+  }else{
+    enterSecretRealm();
+  }
+  player.qi=Math.max(0,player.qi-4);
+  grantStats({explores:1});
+  maybeWorldEvent();
+  saveGame(); renderAll();
+}
+
+function startBattle(){
+  if(!spendStamina(5, '寻敌')) return;
+  if(!state.currentMonster) state.currentMonster=structuredClone(rand(monsterPool));
+  addLog(`你主动寻敌，遭遇 ${state.currentMonster.name}。`);
+  renderAll();
+}
+function attackMonster(){
+  if(!spendStamina(5, '攻击')) return;
+  const m=state.currentMonster;
+  if(!m){ addLog('当前没有敌人。'); renderAll(); return; }
+  const pDmg=Math.max(1,Math.floor(player.atk)-Math.floor(Math.random()*4)+Math.floor(player.fate/3));
+  const mDmg=Math.max(1,m.atk-Math.floor(player.def)-Math.floor(Math.random()*3));
+  m.hp-=pDmg;
+  if(m.hp<=0){
+    const gain=gainExp(Math.floor(m.exp * 0.8));
+    player.spiritStone+=12;
+    player.contribution+=2;
+    state.bag.push({type:'material',name:m.loot});
+    grantStats({kills:1});
+    addLog(`你击败了 ${m.name}，修为 +${gain}，获得【${m.loot}】。`);
+    state.currentMonster=null;
+    saveGame(); renderAll(); return;
+  }
+  player.hp=Math.max(0,player.hp-mDmg);
+  addLog(`你对 ${m.name} 造成 ${pDmg} 点伤害，并受到 ${mDmg} 点反击。`);
+  if(player.hp<=0){
+    player.hp=Math.floor(player.maxHp*0.5);
+    player.qi=Math.floor(player.maxQi*0.5);
+    state.currentMonster=null;
+    addLog('你重伤遁走，返回洞府疗伤。');
+  }
+  saveGame(); renderAll();
+}
+
+function refinePill(){
+  if(!spendStamina(5, '炼丹')) return;
+  const idxs=state.bag.map((x,i)=>[x,i]).filter(([x])=>x.type==='herb').slice(0,2);
+  if(idxs.length<2){ addLog('炼丹失败：至少需要两株灵草。'); renderAll(); return; }
+  const used=idxs.map(([x])=>x); idxs.reverse().forEach(([,i])=>state.bag.splice(i,1));
+  const rate=0.65 + used.reduce((s,h)=>s+(rarityMultiplier(h.rarity)-1)*0.08,0) + player.alchemyLv*0.03;
+  if(Math.random()<Math.min(0.97,rate)){
+    state.bag.push({type:'pill',name:'聚气丹',heal:15+used.reduce((s,h)=>s+h.qi,0)+player.alchemyLv*2,qi:8+player.alchemyLv});
+    grantStats({pills:1});
+    addLog('你成功炼成【聚气丹】。');
+  }else addLog('丹炉一震，本次炼丹失败。');
+  saveGame(); renderAll();
+}
+function forge(){
+  if(!spendStamina(5, '炼器')) return;
+  const idxs=state.bag.map((x,i)=>[x,i]).filter(([x])=>x.type==='ore').slice(0,2);
+  if(idxs.length<2){ addLog('炼器失败：至少需要两份矿材。'); renderAll(); return; }
+  const used=idxs.map(([x])=>x); idxs.reverse().forEach(([,i])=>state.bag.splice(i,1));
+  const power=used.reduce((s,o)=>s+o.power,0)+Math.floor(Math.random()*4)+player.forgeLv;
+  const name=power>20?'离火神兵':power>16?'灵炎飞剑':power>10?'玄铁法剑':'黑锋短刃';
+  player.weapon={name,power}; player.atk=8+power; player.forgeLv+=0.2;
+  grantStats({forge:1});
+  addLog(`你成功炼制【${name}】，攻击提升至 ${Math.floor(player.atk)}。`);
+  saveGame(); renderAll();
+}
+function usePill(){
+  const idx=state.bag.findIndex(x=>x.type==='pill');
+  if(idx===-1){ addLog('背包中没有可用丹药。'); renderAll(); return; }
+  const p=state.bag.splice(idx,1)[0];
+  player.hp=Math.min(player.maxHp,player.hp+p.heal);
+  player.qi=Math.min(player.maxQi,player.qi+p.qi);
+  addLog(`你服下【${p.name}】，恢复了气血与灵气。`);
+  saveGame(); renderAll();
+}
+function useStaminaPill(){
+  syncStaminaByTime();
+  const idx = state.bag.findIndex(x => x.type === 'staminaPill');
+  if(idx === -1){ addLog('背包中没有可用的体力丹药。'); renderAll(); return; }
+  const pill = state.bag.splice(idx, 1)[0];
+  player.stamina = Math.min(player.maxStamina, player.stamina + pill.stamina);
+  addLog(`你服下【${pill.name}】，恢复体力 ${pill.stamina} 点。当前体力 ${player.stamina}/${player.maxStamina}。`);
+  saveGame(); renderAll();
+}
+function restoreCurrentLocation(){
+  ensureLocation();
+  const before = state.currentLocation.spirit;
+  restoreLocationSpirit();
+  const gain = state.currentLocation.spirit - before;
+  addLog(`你调息地脉，使【${state.currentLocation.name}】环境灵气恢复 ${gain} 点。当前环境灵气 ${state.currentLocation.spirit}/${state.currentLocation.maxSpirit}。`);
+  saveGame(); renderAll();
+}
+
+function attemptTribulation(){
+  if(!spendStamina(5, '渡劫')) return;
+  const stage={ '筑基':20,'金丹':40,'元婴':65,'化神':90,'炼虚':130,'合体':180,'大乘':260,'渡劫':360 }[player.realm];
+  if(!stage){ addLog('你当前境界暂时无法引动天劫。'); renderAll(); return; }
+  const power=player.atk+player.def+player.fate*2+state.artifacts.length*6;
+  if(power>stage+Math.random()*25){
+    player.maxHp+=20; player.maxQi+=15; player.atk+=4; player.fate+=2; player.hp=player.maxHp; player.qi=player.maxQi;
+    addLog(`你成功渡过${player.realm}天劫！`);
+  }else{
+    player.hp=Math.floor(player.maxHp*0.4);
+    addLog('天劫失败，你身受重创。');
+  }
+  saveGame(); renderAll();
+}
+
+function joinSectBranch(index){
+  const b=sectBranches[index];
+  player.path=b.focus; player.sect=b.name;
+  if(b.bonus.atk) player.atk+=b.bonus.atk;
+  if(b.bonus.def) player.def+=b.bonus.def;
+  if(b.bonus.maxHp){ player.maxHp+=b.bonus.maxHp; player.hp+=b.bonus.maxHp; }
+  if(b.bonus.alchemy) player.alchemyLv+=b.bonus.alchemy;
+  if(b.bonus.forge) player.forgeLv+=b.bonus.forge;
+  if(b.bonus.encounter) player.encounterRateBonus+=b.bonus.encounter;
+  addLog(`你加入了【${b.name}】，主修方向变为【${b.focus}】。`);
+  saveGame(); renderAll();
+}
+function buyShop(index){
+  const item=sectShop[index];
+  if(player.contribution<item.cost){ addLog('宗门贡献不足。'); renderAll(); return; }
+  player.contribution-=item.cost;
+  if(item.type==='pill') state.bag.push({type:'pill',name:item.name,heal:25,qi:10});
+  if(item.type==='ore') state.bag.push({type:'ore',...rand(orePool)});
+  if(item.type==='manual') player.alchemyLv+=1;
+  addLog(`你兑换了【${item.name}】。`);
+  saveGame(); renderAll();
+}
+function upgradeCave(index){
+  const item=caveUpgrades[index];
+  if(player.spiritStone<item.cost){ addLog('灵石不足，无法升级洞府。'); renderAll(); return; }
+  player.spiritStone-=item.cost; player.caveLevel+=1;
+  if(item.name==='聚灵阵') player.cultivateBonus=(player.cultivateBonus||0)+0.15;
+  if(item.name==='药圃') state.bag.push({type:'herb',...rand(herbPool)});
+  if(item.name==='地火室'){ player.alchemyLv+=1; player.forgeLv+=1; }
+  if(item.name==='护山阵') player.def+=2;
+  addLog(`你的洞府完成升级：【${item.name}】已建成。`);
+  saveGame(); renderAll();
+}
+function tameSpiritBeast(){
+  if(state.spiritBeast){ addLog('你已经拥有灵兽。'); renderAll(); return; }
+  state.spiritBeast=structuredClone(rand(spiritBeasts));
+  const b=state.spiritBeast.bonus;
+  if(b.atk) player.atk+=b.atk;
+  if(b.def) player.def+=b.def;
+  if(b.maxHp){ player.maxHp+=b.maxHp; player.hp+=b.maxHp; }
+  if(b.encounter) player.encounterRateBonus+=b.encounter;
+  addLog(`你成功收服灵兽【${state.spiritBeast.name}】。`);
+  saveGame(); renderAll();
+}
+function evolveSpiritBeast(){
+  if(!state.spiritBeast){ addLog('你还没有灵兽。'); renderAll(); return; }
+  const idx=beastGrowthStages.indexOf(state.spiritBeast.stage);
+  if(idx>=beastGrowthStages.length-1){ addLog('你的灵兽已达最终阶段。'); renderAll(); return; }
+  state.spiritBeast.stage=beastGrowthStages[idx+1];
+  addLog(`你的灵兽【${state.spiritBeast.name}】进化到了【${state.spiritBeast.stage}】！`);
+  saveGame(); renderAll();
+}
+function recruitCompanion(){
+  if(state.companion){ addLog('你已经有伙伴同行。'); renderAll(); return; }
+  state.companion=structuredClone(rand(companionPool));
+  const b=state.companion.bonus;
+  if(b.atk) player.atk+=b.atk;
+  if(b.def) player.def+=b.def;
+  if(b.alchemy) player.alchemyLv+=b.alchemy;
+  if(b.encounter) player.encounterRateBonus+=b.encounter;
+  addLog(`你结识了伙伴【${state.companion.name}】（${state.companion.role}）。`);
+  saveGame(); renderAll();
+}
+function captureSpiritVein(){
+  state.ownedVein=rand(spiritualVeins);
+  addLog(`你成功占领【${state.ownedVein.name}】，可持续产出 ${state.ownedVein.output}。`);
+  saveGame(); renderAll();
+}
+function createAuctionFromBag(){
+  if(!state.bag.length){ addLog('背包中没有可挂拍的物品。'); renderAll(); return; }
+  const item=state.bag.pop();
+  const price=20+Math.floor(Math.random()*60);
+  state.auctionRecords.push({item:item.name,price,bids:[],status:'open'});
+  addLog(`你将【${item.name}】挂入拍卖行，起拍价 ${price} 灵石。`);
+  saveGame(); renderAll();
+}
+function bidAuction(index){
+  const a=state.auctionRecords[index];
+  if(!a || a.status!=='open') return;
+  const amount=a.price+10+Math.floor(Math.random()*30);
+  a.bids.push(amount);
+  addLog(`有修士对【${a.item}】出价 ${amount} 灵石。`);
+}
+function bidRandomAuction(){
+  if(!state.auctionRecords.length){ addLog('拍卖行没有挂单。'); renderAll(); return; }
+  bidAuction(randomInt(0,state.auctionRecords.length-1));
+  saveGame(); renderAll();
+}
+function challengeWorldBoss(){
+  if(!spendStamina(5, '挑战世界Boss')) return;
+  if(!state.pendingWorldBoss) state.pendingWorldBoss=structuredClone(rand(worldBossPool));
+  const b=state.pendingWorldBoss;
+  const playerPower=player.atk+player.def+player.fate+state.artifacts.length*10;
+  if(playerPower+Math.random()*120 > b.atk+b.hp/80){
+    const gain=gainExp(120);
+    player.spiritStone+=100;
+    state.bag.push({type:'material',name:b.drop});
+    addLog(`你击败了世界Boss【${b.name}】，修为 +${gain}，获得【${b.drop}】。`);
+    state.pendingWorldBoss=null;
+  }else{
+    player.hp=Math.max(1,Math.floor(player.maxHp*0.35));
+    addLog(`你挑战【${b.name}】失败，身受重创。`);
+  }
+  saveGame(); renderAll();
+}
+function ascendToImmortal(){
+  if(player.realm!=='道祖' && player.exp<60000){ addLog('你的底蕴尚不足以飞升。'); renderAll(); return; }
+  player.ascension+=1;
+  player.realm='真仙';
+  player.fate+=50;
+  player.immortalRealm=rand(['太初仙域','九霄仙庭','混沌天界','永恒神域']);
+  addLog(`你成功飞升【${player.immortalRealm}】！`);
+  saveGame(); renderAll();
+}
+function reincarnate(){
+  if(player.realm!=='道祖' && player.ascension<1){ addLog('你尚未达到轮回资格。'); renderAll(); return; }
+  player.reincarnation+=1;
+  player.hp=100; player.maxHp=120; player.qi=30; player.maxQi=30; player.exp=0; player.realm='炼气';
+  player.fate+=20; player.cultivateBonus=(player.cultivateBonus||0)+0.5;
+  addLog('你兵解轮回，保留部分气运与底蕴。');
+  saveGame(); renderAll();
+}
+
+function claimQuestReward(){
+  const q = state.quests.find(x=>x.done && !x.claimed);
+  if(!q){ addLog('当前没有可领取的任务奖励。'); renderAll(); return; }
+  q.claimed=true;
+  if(q.id===1){ player.spiritStone+=20; player.contribution+=8; state.bag.push({type:'staminaPill', name:'回元散', stamina:40}); }
+  if(q.id===2){ gainExp(25); player.contribution+=10; state.bag.push({type:'staminaPill', name:'养元丹', stamina:90}); }
+  if(q.id===3){ player.alchemyLv+=1; player.spiritStone+=15; state.bag.push({type:'staminaPill', name:'生生造化丹', stamina:180}); }
+  if(q.id===4){ player.spiritStone+=30; player.fate+=2; state.bag.push({type:'staminaPill', name:'玄元续命丹', stamina:220}); }
+  addLog(`你领取了任务【${q.name}】的奖励，并得到体力恢复丹药。`);
+  saveGame(); renderAll();
+}
+
+function saveGame(){
+  if(!player || !state) return;
+  syncStaminaByTime();
+  localStorage.setItem('xianxia_local_save_v2', JSON.stringify({player,state,startData}));
+}
+function loadGame(){
+  const raw = localStorage.getItem('xianxia_local_save_v2');
+  if(!raw) return;
+  const data = JSON.parse(raw);
+  player = data.player;
+  state = data.state;
+  if(!state.currentLocation) state.currentLocation = {name:'云隐洞府', spirit:35, maxSpirit:35};
+  syncStaminaByTime();
+  startData = data.startData;
+  document.getElementById('startPage').classList.remove('active');
+  document.getElementById('gamePage').classList.add('active');
+  renderAll();
+}
+function clearSave(){
+  localStorage.removeItem('xianxia_local_save_v2');
+  startData=null;
+  document.getElementById('startRoot').innerHTML='点击下方按钮生成你的开局。';
+  document.getElementById('startTraits').innerHTML='尚未生成。';
+  document.getElementById('startGameBtn').disabled=true;
+}
+
+
+function itemQualityClass(item){
+  const t = item.tier || item.rank || item.rarity || item.name || '';
+  return qualityClass(String(t));
+}
+function isEquipableWeapon(item){
+  const t = item.tier || '';
+  return item.type === 'artifact' && (t.includes('法器') || t.includes('灵器') || t.includes('法宝') || t.includes('灵宝') || t.includes('仙器') || t.includes('神器'));
+}
+function isEquipableTreasure(item){
+  return item.type === 'treasure' || item.type === 'chaosTreasure';
+}
+function selectBagItem(index){
+  const item = state.bag[index];
+  if(!item) return;
+  selectedBagIndex = index;
+  selectedBagType = item.type || '';
+  renderBagBox();
+}
+function clearBagSelection(){
+  selectedBagIndex = -1;
+  selectedBagType = '';
+  renderBagBox();
+}
+function equipSelectedWeapon(){
+  const item = state.bag[selectedBagIndex];
+  if(!item || !isEquipableWeapon(item)){ addLog('请先在背包里选中一件可装备的装备。'); renderAll(); return; }
+  player.weapon = {name:item.name, tier:item.tier || item.rank || '未知'};
+  player.atk += 6;
+  addLog(`你装备了【${item.name}】。`);
+  saveGame(); renderAll();
+}
+function equipSelectedArtifact(){
+  const item = state.bag[selectedBagIndex];
+  if(!item || !isEquipableTreasure(item)){ addLog('请先在背包里选中一件可装备的法宝。'); renderAll(); return; }
+  state.equippedArtifact = {name:item.name, tier:item.tier || item.rank || '未知'};
+  player.atk += item.type === 'chaosTreasure' ? 20 : 10;
+  player.def += item.type === 'chaosTreasure' ? 8 : 4;
+  addLog(`你祭炼并装备了法宝【${item.name}】。`);
+  saveGame(); renderAll();
+}
+function useSelectedItem(){
+  const item = state.bag[selectedBagIndex];
+  if(!item){ addLog('请先在背包中选中一个物品。'); renderAll(); return; }
+  if(item.type === 'staminaPill'){
+    player.stamina = Math.min(player.maxStamina, player.stamina + item.stamina);
+    state.bag.splice(selectedBagIndex, 1);
+    addLog(`你服下【${item.name}】，恢复体力 ${item.stamina} 点。`);
+    clearBagSelection();
+    saveGame(); renderAll(); return;
+  }
+  if(item.type === 'pill'){
+    player.hp = Math.min(player.maxHp, player.hp + item.heal);
+    player.qi = Math.min(player.maxQi, player.qi + item.qi);
+    state.bag.splice(selectedBagIndex, 1);
+    addLog(`你服下【${item.name}】，恢复了气血与灵气。`);
+    clearBagSelection();
+    saveGame(); renderAll(); return;
+  }
+  addLog('这个物品当前不能直接使用。');
+  renderAll();
+}
+function renderBagBox(){
+  const equipText = player.weapon ? `<span class="${qualityClass(player.weapon.tier || player.weapon.name)}">${player.weapon.name}</span>` : '未装备';
+  const artifactText = state.equippedArtifact ? `<span class="${qualityClass(state.equippedArtifact.tier || state.equippedArtifact.name)}">${state.equippedArtifact.name}</span>` : '未装备';
+  const bagEl = document.getElementById('bagList');
+  const equipEl = document.getElementById('equipBox');
+  const artiEl = document.getElementById('artifactBox');
+  if(equipEl) equipEl.innerHTML = `武器/装备：${equipText}`;
+  if(artiEl) artiEl.innerHTML = `法宝：${artifactText}`;
+  if(!bagEl) return;
+  if(!state.bag.length){
+    bagEl.innerHTML = '<div class="item muted">背包空空如也。</div>';
+    return;
+  }
+  bagEl.innerHTML = state.bag.map((item, i) => {
+    const tag = item.tier || item.rank || item.rarity || item.type || '物品';
+    const extra = item.stamina ? `恢复体力 ${item.stamina}` : item.heal ? `恢复气血 ${item.heal}` : item.power ? `威能 ${item.power}` : item.qi ? `灵气值 ${item.qi}` : '';
+    const selected = i === selectedBagIndex ? ' style="outline:2px solid #ffd966"' : '';
+    const actionHint = isEquipableWeapon(item) ? '【可装备】' : isEquipableTreasure(item) ? '【可作法宝】' : item.type === 'staminaPill' || item.type === 'pill' ? '【可使用】' : '';
+    return `<div class="item"${selected} onclick="selectBagItem(${i})"><span class="${itemQualityClass(item)}">${item.name}</span><br><span class="small">${tag}${extra ? '｜' + extra : ''}${actionHint ? '｜' + actionHint : ''}</span></div>`;
+  }).join('');
+}
+function renderTop(){
+  document.getElementById('heroBadges').innerHTML = `
+    <div class="badge ${qualityClass(player.spiritRoot.name + player.spiritRoot.tier)}">灵根：${player.spiritRoot.tier} ${player.spiritRoot.name}</div>
+    <div class="badge">宗门：${player.sect}</div>
+    <div class="badge">天命：${player.traits.map(t=>t.name).join('、')}</div>
+  `;
+  document.getElementById('realmText').textContent = `${player.realm} / 修炼倍率 ${(player.cultivateRate + (player.cultivateBonus||0)).toFixed(2)}x`;
+  document.getElementById('hpText').textContent = `${Math.floor(player.hp)}/${Math.floor(player.maxHp)}`;
+  document.getElementById('qiText').textContent = `${Math.floor(player.qi)}/${Math.floor(player.maxQi)}`;
+  const nextNeed=nextRealmNeed(player.exp);
+  document.getElementById('expText').textContent = `${Math.floor(player.exp)}/${Math.floor(nextNeed)}`;
+  document.getElementById('hpBar').style.width = `${(player.hp/player.maxHp)*100}%`;
+  document.getElementById('qiBar').style.width = `${(player.qi/player.maxQi)*100}%`;
+  document.getElementById('expBar').style.width = `${Math.min(100,(player.exp/nextNeed)*100)}%`;
+  const stats = [
+    ['攻击',Math.floor(player.atk)],['防御',Math.floor(player.def)],
+    ['灵石',player.spiritStone],['气运',player.fate],
+    ['炼丹',player.alchemyLv],['炼器',Math.floor(player.forgeLv)],
+    ['探索',player.explorationLv],['寿元',Math.floor(player.lifespan)]
+  ];
+  document.getElementById('stats').innerHTML = stats.map(([k,v])=>`<div class="stat"><div class="label">${k}</div><div class="value">${v}</div></div>`).join('');
+}
+function renderRootTraitBox(){
+  const sy = player.traits.filter(t=>t.synergy);
+  const staminaCfg = realmStaminaConfig(player.realm);
+  document.getElementById('rootTraitBox').innerHTML = `
+    当前灵根：<span class="${qualityClass(player.spiritRoot.name + player.spiritRoot.tier)}">${player.spiritRoot.tier} ${player.spiritRoot.name}</span><br>
+    当前词条：${player.traits.map(t=>`<span class="${qualityClass(t.tier)}">${t.tier}</span>·${t.name}`).join('、')}<br>
+    ${sy.length ? '联动效果：' + sy.map(t=>`${t.name}（${t.synergy.desc || '联动'}）`).join('、') : '当前暂无高度契合联动。'}<br>
+    当前体力：${player.stamina}/${player.maxStamina}（每分钟恢复 ${staminaCfg.regenPerMin}）<br>
+    当前修炼地点：${state.currentLocation ? state.currentLocation.name : '云隐洞府'}，环境灵气：${state.currentLocation ? `${state.currentLocation.spirit}/${state.currentLocation.maxSpirit}` : '35/35'}<br>
+    境界突破会直接提升人物属性，并回满气血与灵气
+  `;
+}
+function renderEncounterBox(){
+  document.getElementById('encounterBox').innerHTML = state.encounter
+    ? `<h3><span class="${qualityClass(state.encounter.tier)}">${state.encounter.tier}奇遇</span></h3><p>${state.encounter.title}<br>${state.encounter.intro}<br>${
+        state.encounter.tier === '凡品' ? '奖励倾向：少量灵石、修为、凡品装备' :
+        state.encounter.tier === '中品' ? '奖励倾向：灵石、修为、中品装备' :
+        state.encounter.tier === '上品' ? '奖励倾向：较多灵石、修为、上品装备' :
+        state.encounter.tier === '极品' ? '奖励倾向：低概率至宝，大量灵石与修为' :
+        state.encounter.tier === '仙品' ? '奖励倾向：中概率至宝，高额收益' :
+        '奖励倾向：混沌灵宝'
+      }</p><div class="grid2">${state.encounter.options.map(opt=>`<button onclick="resolveEncounter('${opt}')">${opt}</button>`).join('')}</div>`
+    : `<h3>奇遇状态</h3><p>当前没有正在进行的奇遇。</p>`;
+}
+function renderSecretRealmBox(){
+  document.getElementById('secretRealmBox').innerHTML = state.secretRealm
+    ? `<h3>当前秘境</h3><p>${state.secretRealm.name}<br>层数：${state.secretRealm.floor}/${state.secretRealm.floors}<br>奖励：${state.secretRealm.reward}</p>`
+    : `<h3>秘境状态</h3><p>尚未进入秘境。</p>`;
+}
+function renderQuestBox(){
+  document.getElementById('questBox').innerHTML = `<h3>任务状态</h3><p>${state.quests.map(q=>`${q.name}：${q.claimed?'已领取':q.done?'可领取':'进行中'}`).join('<br>')}</p>`;
+}
+function renderWorldEventBox(){
+  document.getElementById('worldEventBox').innerHTML = state.pendingWorldBoss
+    ? `<h3>世界Boss</h3><p>${state.pendingWorldBoss.name}<br>掉落：${state.pendingWorldBoss.drop}</p>`
+    : `<h3>世界局势</h3><p>当前天地平稳。</p>`;
+}
+function renderMonsterBox(){
+  document.getElementById('monsterBox').innerHTML = state.currentMonster
+    ? `<h3>当前敌人</h3><p>${state.currentMonster.name}<br>血量：${state.currentMonster.hp}<br>攻击：${state.currentMonster.atk}<br>掉落：${state.currentMonster.loot}</p>`
+    : `<h3>当前敌人</h3><p>暂无敌人。</p>`;
+}
+function renderBossBox(){
+  document.getElementById('bossBox').innerHTML = state.pendingWorldBoss
+    ? `<h3>世界Boss</h3><p>${state.pendingWorldBoss.name}<br>血量：${state.pendingWorldBoss.hp}<br>攻击：${state.pendingWorldBoss.atk}</p>`
+    : `<h3>世界Boss</h3><p>暂未降临。</p>`;
+}
+function renderCaveBox(){
+  document.getElementById('caveBox').innerHTML = `当前洞府等级：${player.caveLevel}<br>灵脉：${state.ownedVein ? state.ownedVein.name : '未占领'}<br>本命法宝：${player.natalArtifact}`;
+}
+function renderMoreBox(){
+  document.getElementById('moreBox').innerHTML = `宗门：${player.sect}<br>主修：${player.path}<br>灵兽：${state.spiritBeast ? `${state.spiritBeast.name}（${state.spiritBeast.stage}）` : '无'}<br>伙伴：${state.companion ? `${state.companion.name}（${state.companion.role}）` : '无'}<br>飞升：${player.ascension} 次<br>轮回：${player.reincarnation} 次`;
+}
+function renderInventoryBox(){
+  const summary = countByName(state.bag);
+  const html = Object.keys(summary).length ? Object.entries(summary).map(([name,count])=>`${name} × ${count}`).join('<br>') : '储物袋空空如也。';
+  document.getElementById('inventoryBox').innerHTML = `<h3>储物袋摘要</h3><p>${html}</p><div class="small mt8">详细查看与装备请前往【背包】页面。</div>`;
+}
+function renderResultLog(){
+  document.getElementById('resultLog').innerHTML = state.logs.map(x=>`<div class="log-item">${x}</div>`).join('');
+}
+function renderAll(){
+  if(!player || !state) return;
+  ensureLocation();
+  renderTop();
+  renderRootTraitBox();
+  renderEncounterBox();
+  renderSecretRealmBox();
+  if(document.getElementById('worldEventBox')) renderWorldEventBox();
+  renderQuestBox();
+  renderMonsterBox();
+  renderBossBox();
+  renderCaveBox();
+  renderMoreBox();
+  renderInventoryBox();
+  renderBagBox();
+  renderResultLog();
+}
+function switchTab(tab, el){
+  document.querySelectorAll('#gamePage .tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#gamePage .page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  el.classList.add('active');
+}
+
+setInterval(()=>{
+  if(!player) return;
+  syncStaminaByTime();
+  ensureLocation();
+  if(Math.random() < 0.35) restoreLocationSpirit();
+  player.hp = Math.min(player.maxHp, player.hp+1);
+  player.qi = Math.min(player.maxQi, player.qi+1);
+  renderTop();
+}, 2500);
+
+rollStart();
+</script>
+</body>
+</html>

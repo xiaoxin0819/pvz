@@ -301,7 +301,7 @@ const rootEffects = {
   '上品土灵根':{cultivate:1.0,encounter:1.05,awakenable:false},'天灵根':{cultivate:10,encounter:1.4,awakenable:true,awakenMult:10},
   '雷灵根':{cultivate:50,encounter:1.9,awakenable:true,awakenMult:20},'冰灵根':{cultivate:50,encounter:1.9,awakenable:true,awakenMult:20},
   '风灵根':{cultivate:50,encounter:1.8,awakenable:true,awakenMult:15},'仙灵根':{cultivate:1000,encounter:3,awakenable:true,awakenMult:100},
-  '混沌灵根':{cultivate:1000000,encounter:5,awakenable:true,awakenMult:1000}
+  '混沌灵根':{cultivate:100000,encounter:3,awakenable:true,awakenMult:100}
 };
 const traitPool = [
   {name:'筋骨强健', tier:'凡品', bonus:{maxHp:10}},
@@ -803,9 +803,9 @@ function resolveEncounter(choice){
     const stoneMap = { '凡品': 12, '中品': 28, '上品': 60 };
     const expMap = { '凡品': 8, '中品': 18, '上品': 36 };
     const staminaPillMap = {
-      '凡品': {name:'回元散', stamina:40},
-      '中品': {name:'养元丹', stamina:90},
-      '上品': {name:'生生造化丹', stamina:180}
+      '凡品': {name:'回元散', staminaPercent:0.10, tier:'凡品'},
+      '中品': {name:'养元丹', staminaPercent:0.20, tier:'中品'},
+      '上品': {name:'生生造化丹', staminaPercent:0.30, tier:'上品'}
     };
     const equipMap = {
       '凡品': {name:'凡品法器·散修短刃', tier:'凡品法器'},
@@ -838,7 +838,7 @@ function resolveEncounter(choice){
       if(art.name==='虚空遁界符'){ player.explorationLv+=2; player.maxQi+=20; player.qi+=20; player.fate+=10; }
       if(art.name==='诸天剑胚'){ player.atk+=26; player.weapon={name:'诸天剑胚',power:26}; }
       if(Math.random() < 0.5){
-        const highPill = tier === '仙品' ? {name:'九转回天丹', stamina:380} : {name:'玄元续命丹', stamina:220};
+        const highPill = tier === '仙品' ? {name:'九转回天丹', staminaPercent:0.80, tier:'仙品'} : {name:'玄元续命丹', staminaPercent:0.50, tier:'极品'};
         state.bag.push({type:'staminaPill', ...highPill});
         addLog(`你选择【${choice}】，从【${tier}奇遇】中获得至宝【${art.name}】与体力丹药【${highPill.name}】！`);
       }else{
@@ -858,7 +858,7 @@ function resolveEncounter(choice){
       if(chaos.name.includes('太虚源轮')){ player.maxHp += 180; player.maxQi += 90; player.atk += 28; player.hp = player.maxHp; player.qi = player.maxQi; }
       if(chaos.name.includes('玄黄道种')){ player.cultivateBonus = (player.cultivateBonus || 0) + 0.8; player.fate += 15; }
       if(chaos.name.includes('万界胚胎')){ player.atk += 20; player.def += 10; player.explorationLv += 2; player.alchemyLv += 1; player.forgeLv += 1; }
-      state.bag.push({type:'staminaPill', name:'混沌回天丹', stamina:880});
+      state.bag.push({type:'staminaPill', name:'混沌回天丹', staminaPercent:1.00, tier:'神品'});
       addLog(`你选择【${choice}】，触发【神品奇遇】，获得混沌灵宝【${chaos.name}】与【混沌回天丹】！`);
     }else{
       const gain = gainExp(220);
@@ -985,8 +985,10 @@ function useStaminaPill(){
   const idx = state.bag.findIndex(x => x.type === 'staminaPill');
   if(idx === -1){ addLog('背包中没有可用的体力丹药。'); renderAll(); return; }
   const pill = state.bag.splice(idx, 1)[0];
-  player.stamina = Math.min(player.maxStamina, player.stamina + pill.stamina);
-  addLog(`你服下【${pill.name}】，恢复体力 ${pill.stamina} 点。当前体力 ${player.stamina}/${player.maxStamina}。`);
+  const percent = pill.staminaPercent || 0;
+  const restore = Math.max(1, Math.floor(player.maxStamina * percent));
+  player.stamina = Math.min(player.maxStamina, player.stamina + restore);
+  addLog(`你服下【${pill.name}】，恢复体力 ${restore} 点（${Math.floor(percent * 100)}%）。当前体力 ${player.stamina}/${player.maxStamina}。`);
   saveGame(); renderAll();
 }
 function restoreCurrentLocation(){
@@ -1140,10 +1142,10 @@ function claimQuestReward(){
   const q = state.quests.find(x=>x.done && !x.claimed);
   if(!q){ addLog('当前没有可领取的任务奖励。'); renderAll(); return; }
   q.claimed=true;
-  if(q.id===1){ player.spiritStone+=20; player.contribution+=8; state.bag.push({type:'staminaPill', name:'回元散', stamina:40}); }
-  if(q.id===2){ gainExp(25); player.contribution+=10; state.bag.push({type:'staminaPill', name:'养元丹', stamina:90}); }
-  if(q.id===3){ player.alchemyLv+=1; player.spiritStone+=15; state.bag.push({type:'staminaPill', name:'生生造化丹', stamina:180}); }
-  if(q.id===4){ player.spiritStone+=30; player.fate+=2; state.bag.push({type:'staminaPill', name:'玄元续命丹', stamina:220}); }
+  if(q.id===1){ player.spiritStone+=20; player.contribution+=8; state.bag.push({type:'staminaPill', name:'回元散', staminaPercent:0.10, tier:'凡品'}); }
+  if(q.id===2){ gainExp(25); player.contribution+=10; state.bag.push({type:'staminaPill', name:'养元丹', staminaPercent:0.20, tier:'中品'}); }
+  if(q.id===3){ player.alchemyLv+=1; player.spiritStone+=15; state.bag.push({type:'staminaPill', name:'生生造化丹', staminaPercent:0.30, tier:'上品'}); }
+  if(q.id===4){ player.spiritStone+=30; player.fate+=2; state.bag.push({type:'staminaPill', name:'玄元续命丹', staminaPercent:0.50, tier:'极品'}); }
   addLog(`你领取了任务【${q.name}】的奖励，并得到体力恢复丹药。`);
   saveGame(); renderAll();
 }
@@ -1219,9 +1221,11 @@ function useSelectedItem(){
   const item = state.bag[selectedBagIndex];
   if(!item){ addLog('请先在背包中选中一个物品。'); renderAll(); return; }
   if(item.type === 'staminaPill'){
-    player.stamina = Math.min(player.maxStamina, player.stamina + item.stamina);
+    const percent = item.staminaPercent || 0;
+    const restore = Math.max(1, Math.floor(player.maxStamina * percent));
+    player.stamina = Math.min(player.maxStamina, player.stamina + restore);
     state.bag.splice(selectedBagIndex, 1);
-    addLog(`你服下【${item.name}】，恢复体力 ${item.stamina} 点。`);
+    addLog(`你服下【${item.name}】，恢复体力 ${restore} 点（${Math.floor(percent * 100)}%）。`);
     clearBagSelection();
     saveGame(); renderAll(); return;
   }
@@ -1251,7 +1255,7 @@ function renderBagBox(){
   }
   bagEl.innerHTML = state.bag.map((item, i) => {
     const tag = item.tier || item.rank || item.rarity || item.type || '物品';
-    const extra = item.stamina ? `恢复体力 ${item.stamina}` : item.heal ? `恢复气血 ${item.heal}` : item.power ? `威能 ${item.power}` : item.qi ? `灵气值 ${item.qi}` : '';
+    const extra = item.staminaPercent ? `恢复体力 ${Math.floor(item.staminaPercent * 100)}%` : item.heal ? `恢复气血 ${item.heal}` : item.power ? `威能 ${item.power}` : item.qi ? `灵气值 ${item.qi}` : '';
     const selected = i === selectedBagIndex ? ' style="outline:2px solid #ffd966"' : '';
     const actionHint = isEquipableWeapon(item) ? '【可装备】' : isEquipableTreasure(item) ? '【可作法宝】' : item.type === 'staminaPill' || item.type === 'pill' ? '【可使用】' : '';
     return `<div class="item"${selected} onclick="selectBagItem(${i})"><span class="${itemQualityClass(item)}">${item.name}</span><br><span class="small">${tag}${extra ? '｜' + extra : ''}${actionHint ? '｜' + actionHint : ''}</span></div>`;

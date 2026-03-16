@@ -113,12 +113,13 @@ button:disabled{opacity:.5;cursor:not-allowed}
     </div>
 
     <div class="panel">
-      <div class="nav" style="grid-template-columns:repeat(6,1fr)">
+      <div class="nav" style="grid-template-columns:repeat(7,1fr)">
         <div class="tab active" onclick="switchTab('home', this)">修行</div>
         <div class="tab" onclick="switchTab('world', this)">探索</div>
         <div class="tab" onclick="switchTab('battle', this)">战斗</div>
         <div class="tab" onclick="switchTab('craft', this)">百艺</div>
         <div class="tab" onclick="switchTab('bag', this)">背包</div>
+        <div class="tab" onclick="switchTab('market', this)">坊市</div>
         <div class="tab" onclick="switchTab('more', this)">更多</div>
       </div>
     </div>
@@ -201,7 +202,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     
     <div id="tab-bag" class="page">
       <div class="panel">
-        <div class="section-title"><span>背包</span><span class="sub">物品、装备、法宝</span></div>
+        <div class="section-title"><span>背包</span><span class="sub">物品、装备、法宝｜可直接出售到坊市</span></div>
         <div class="card">
           <h3>当前装备</h3>
           <p id="equipBox"></p>
@@ -216,11 +217,34 @@ button:disabled{opacity:.5;cursor:not-allowed}
         </div>
         <div class="grid2 mt10">
           <button onclick="useSelectedItem()">使用选中物品</button>
+          <button onclick="sellSelectedItem()">一键出售到坊市</button>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="sellDuplicateItems()">出售重复装备</button>
           <button onclick="clearBagSelection()">取消选中</button>
         </div>
         <div class="card mt10">
           <h3>背包列表</h3>
           <div id="bagList" class="list"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="tab-market" class="page">
+      <div class="panel">
+        <div class="section-title"><span>坊市</span><span class="sub">出售多余物品，购买装备法宝材料</span></div>
+        <div class="card">
+          <h3>坊市说明</h3>
+          <p>可出售背包中多余的装备、法宝、材料与草药，也可从坊市购买装备、法宝和材料。</p>
+        </div>
+        <div class="grid2 mt10">
+          <button onclick="sellSelectedItem()">出售选中物品</button>
+          <button onclick="sellDuplicateItems()">出售重复装备</button>
+        </div>
+        <div class="card mt10">
+          <h3>坊市货架</h3>
+          <div id="marketList" class="list"></div>
         </div>
       </div>
     </div>
@@ -476,9 +500,13 @@ function applyRealmGrowth(oldRealm, newRealm){
     player.atk += g.atk;
     player.def += g.def;
     player.fate += g.fate;
+    const staminaCfg = realmStaminaConfig(realmName);
+    player.maxStamina = staminaCfg.max;
+    player.stamina = player.maxStamina;
+    player.lastStaminaTs = Date.now();
     player.hp = player.maxHp;
     player.qi = player.maxQi;
-    addLog(`你突破至【${realmName}】！属性提升：气血+${g.maxHp}，灵气+${g.maxQi}，攻击+${g.atk}，防御+${g.def}，气运+${g.fate}。`);
+    addLog(`你突破至【${realmName}】！属性提升：气血+${g.maxHp}，灵气+${g.maxQi}，攻击+${g.atk}，防御+${g.def}，气运+${g.fate}，体力已回满。`);
   }
   player.realmIndex = newIdx;
 }
@@ -527,6 +555,13 @@ function spendStamina(cost, actionName){
   }
   player.stamina -= cost;
   return true;
+}
+function explorationBenchmarkExp(realm, locationSpirit){
+  const spirit = locationSpirit || 35;
+  const upperRootCultivate = 1.0; // 上品修士修炼倍率基准
+  const basePerMeditate = Math.max(2, Math.floor(spirit * 0.22));
+  const oneMeditate = Math.max(1, Math.floor(basePerMeditate * (realmCultivationFactor(realm) + upperRootCultivate - 1)));
+  return oneMeditate * 10;
 }
 function realmCultivationFactor(realm){
   const table = {
@@ -678,6 +713,18 @@ function initNewGame(){
     ],
     spiritBeast:null, companion:null, secretRealm:null, ownedVein:null, pendingWorldBoss:null,
     auctionRecords:[],
+    marketGoods:[
+      {name:'凡品法器·青锋剑', type:'artifact', tier:'凡品法器', price:120},
+      {name:'中品灵器·流云佩', type:'artifact', tier:'中品灵器', price:420},
+      {name:'上品法宝·青霄环', type:'artifact', tier:'上品法宝', price:1200},
+      {name:'极品至宝·太初混沌钟残片', type:'treasure', tier:'极品至宝', price:8800},
+      {name:'黑铁', type:'ore', rarity:'凡', power:2, price:28},
+      {name:'太虚金', type:'ore', rarity:'天', power:13, price:680},
+      {name:'凝露草', type:'herb', rarity:'凡', qi:2, price:18},
+      {name:'天心果', type:'herb', rarity:'天', qi:14, price:520},
+      {name:'回元散', type:'staminaPill', staminaPercent:0.10, tier:'凡品', price:60},
+      {name:'玄元续命丹', type:'staminaPill', staminaPercent:0.50, tier:'极品', price:1200}
+    ],
     currentLocation:{name:'云隐洞府', spirit:35, maxSpirit:35}
   };
   applyInitialBonuses();
@@ -812,7 +859,13 @@ function resolveEncounter(choice){
       '中品': {name:'中品灵器·流光佩', tier:'中品灵器'},
       '上品': {name:'上品法宝·青霄环', tier:'上品法宝'}
     };
-    const gain = gainExp(expMap[tier] + player.explorationLv * 2);
+    const benchBase = explorationBenchmarkExp(player.realm, state.currentLocation ? state.currentLocation.maxSpirit : 35);
+    const tierRatio = { '凡品':0.25, '中品':0.45, '上品':0.75 }[tier] || 0.25;
+    const gain = Math.max(1, Math.floor(benchBase * tierRatio));
+    const oldRealm = player.realm;
+    player.exp += gain;
+    player.realm = realmFromExp(player.exp);
+    if(player.realm !== oldRealm) applyRealmGrowth(oldRealm, player.realm);
     player.spiritStone += stoneMap[tier];
     const gotPill = Math.random() < (tier === '上品' ? 0.45 : tier === '中品' ? 0.30 : 0.18);
     const gotEquip = Math.random() < (tier === '上品' ? 0.55 : tier === '中品' ? 0.35 : 0.2);
@@ -845,7 +898,12 @@ function resolveEncounter(choice){
         addLog(`你选择【${choice}】，从【${tier}奇遇】中获得至宝【${art.name}】！`);
       }
     }else{
-      const gain = gainExp(tier === '极品' ? 60 : 120);
+      const benchBase = explorationBenchmarkExp(player.realm, state.currentLocation ? state.currentLocation.maxSpirit : 35);
+      const gain = Math.max(1, Math.floor(benchBase * (tier === '极品' ? 1.0 : 1.5)));
+      const oldRealm = player.realm;
+      player.exp += gain;
+      player.realm = realmFromExp(player.exp);
+      if(player.realm !== oldRealm) applyRealmGrowth(oldRealm, player.realm);
       player.spiritStone += tier === '极品' ? 120 : 260;
       player.fate += tier === '极品' ? 2 : 4;
       addLog(`你选择【${choice}】，虽然没有得到至宝，但仍获得大量收益：修为 +${gain}，灵石 +${tier === '极品' ? 120 : 260}。`);
@@ -861,7 +919,12 @@ function resolveEncounter(choice){
       state.bag.push({type:'staminaPill', name:'混沌回天丹', staminaPercent:1.00, tier:'神品'});
       addLog(`你选择【${choice}】，触发【神品奇遇】，获得混沌灵宝【${chaos.name}】与【混沌回天丹】！`);
     }else{
-      const gain = gainExp(220);
+      const benchBase = explorationBenchmarkExp(player.realm, state.currentLocation ? state.currentLocation.maxSpirit : 35);
+      const gain = Math.max(1, Math.floor(benchBase * 2.0));
+      const oldRealm = player.realm;
+      player.exp += gain;
+      player.realm = realmFromExp(player.exp);
+      if(player.realm !== oldRealm) applyRealmGrowth(oldRealm, player.realm);
       player.spiritStone += 520;
       player.fate += 8;
       addLog(`你选择【${choice}】，虽然错失混沌灵宝，但仍从神品奇遇中获得修为 +${gain}、灵石 +520。`);
@@ -1240,6 +1303,102 @@ function useSelectedItem(){
   addLog('这个物品当前不能直接使用。');
   renderAll();
 }
+
+function groupedBagItems(){
+  const groups = new Map();
+  state.bag.forEach((item, idx) => {
+    const key = JSON.stringify({
+      name:item.name, type:item.type, tier:item.tier || '', rank:item.rank || '',
+      rarity:item.rarity || '', staminaPercent:item.staminaPercent || 0,
+      heal:item.heal || 0, qi:item.qi || 0, power:item.power || 0
+    });
+    if(!groups.has(key)){
+      groups.set(key, {item: {...item}, count: 1, indices: [idx], firstIndex: idx});
+    }else{
+      const g = groups.get(key);
+      g.count += 1;
+      g.indices.push(idx);
+    }
+  });
+  return Array.from(groups.values());
+}
+function sellPriceOfItem(item){
+  const base = item.type === 'chaosTreasure' ? 30000 :
+               item.type === 'treasure' ? 8000 :
+               item.type === 'artifact' ? ((item.tier || '').includes('神器') ? 6000 :
+                                           (item.tier || '').includes('仙器') ? 3000 :
+                                           (item.tier || '').includes('灵宝') ? 1500 :
+                                           (item.tier || '').includes('法宝') ? 800 :
+                                           (item.tier || '').includes('灵器') ? 300 : 120) :
+               item.type === 'ore' ? (item.power || 1) * 20 :
+               item.type === 'herb' ? (item.qi || 1) * 15 :
+               item.type === 'staminaPill' ? Math.floor((item.staminaPercent || 0.1) * 800) :
+               item.type === 'pill' ? 120 :
+               item.type === 'material' ? 80 : 30;
+  return base;
+}
+function sellSelectedItem(){
+  const item = state.bag[selectedBagIndex];
+  if(!item){ addLog('请先在背包里选中一个要出售的物品。'); renderAll(); return; }
+  const price = sellPriceOfItem(item);
+  player.spiritStone += price;
+  state.bag.splice(selectedBagIndex, 1);
+  addLog(`你已将背包中的【${item.name}】一键出售到坊市，获得灵石 ${price}。`);
+  clearBagSelection();
+  saveGame(); renderAll();
+}
+function sellDuplicateItems(){
+  const groups = groupedBagItems().filter(g => g.count > 1 && (g.item.type === 'artifact' || g.item.type === 'treasure' || g.item.type === 'chaosTreasure'));
+  if(!groups.length){ addLog('当前没有可批量出售的重复装备或法宝。'); renderAll(); return; }
+  let total = 0;
+  groups.forEach(g => {
+    const removeCount = g.count - 1;
+    total += sellPriceOfItem(g.item) * removeCount;
+    for(let i = 0; i < removeCount; i++){
+      const idx = state.bag.findIndex(x => JSON.stringify({
+        name:x.name, type:x.type, tier:x.tier || '', rank:x.rank || '',
+        rarity:x.rarity || '', staminaPercent:x.staminaPercent || 0,
+        heal:x.heal || 0, qi:x.qi || 0, power:x.power || 0
+      }) === JSON.stringify({
+        name:g.item.name, type:g.item.type, tier:g.item.tier || '', rank:g.item.rank || '',
+        rarity:g.item.rarity || '', staminaPercent:g.item.staminaPercent || 0,
+        heal:g.item.heal || 0, qi:g.item.qi || 0, power:g.item.power || 0
+      }));
+      if(idx !== -1) state.bag.splice(idx, 1);
+    }
+  });
+  player.spiritStone += total;
+  addLog(`你批量出售了重复装备/法宝，获得灵石 ${total}。`);
+  clearBagSelection();
+  saveGame(); renderAll();
+}
+function buyMarketItem(index){
+  const item = state.marketGoods[index];
+  if(!item){ return; }
+  if(player.spiritStone < item.price){
+    addLog(`灵石不足，无法购买【${item.name}】。`);
+    renderAll();
+    return;
+  }
+  player.spiritStone -= item.price;
+  const copy = JSON.parse(JSON.stringify(item));
+  delete copy.price;
+  state.bag.push(copy);
+  addLog(`你在坊市购买了【${item.name}】，花费灵石 ${item.price}。`);
+  saveGame(); renderAll();
+}
+function renderMarketBox(){
+  const el = document.getElementById('marketList');
+  if(!el) return;
+  el.innerHTML = state.marketGoods.map((item, i) => {
+    const tag = item.tier || item.rarity || item.type;
+    const extra = item.staminaPercent ? `恢复体力 ${Math.floor(item.staminaPercent * 100)}%` :
+                 item.heal ? `恢复气血 ${item.heal}` :
+                 item.power ? `威能 ${item.power}` :
+                 item.qi ? `灵气值 ${item.qi}` : '';
+    return `<div class="item"><span class="${itemQualityClass(item)}">${item.name}</span><br><span class="small">${tag}${extra ? '｜' + extra : ''}｜售价 ${item.price} 灵石</span><div class="mt8"><button onclick="buyMarketItem(${i})">购买</button></div></div>`;
+  }).join('');
+}
 function renderBagBox(){
   const equipText = player.weapon ? `<span class="${qualityClass(player.weapon.tier || player.weapon.name)}">${player.weapon.name}</span>` : '未装备';
   const artifactText = state.equippedArtifact ? `<span class="${qualityClass(state.equippedArtifact.tier || state.equippedArtifact.name)}">${state.equippedArtifact.name}</span>` : '未装备';
@@ -1249,16 +1408,19 @@ function renderBagBox(){
   if(equipEl) equipEl.innerHTML = `武器/装备：${equipText}`;
   if(artiEl) artiEl.innerHTML = `法宝：${artifactText}`;
   if(!bagEl) return;
-  if(!state.bag.length){
+  const groups = groupedBagItems();
+  if(!groups.length){
     bagEl.innerHTML = '<div class="item muted">背包空空如也。</div>';
     return;
   }
-  bagEl.innerHTML = state.bag.map((item, i) => {
+  bagEl.innerHTML = groups.map((g) => {
+    const item = g.item;
+    const i = g.firstIndex;
     const tag = item.tier || item.rank || item.rarity || item.type || '物品';
     const extra = item.staminaPercent ? `恢复体力 ${Math.floor(item.staminaPercent * 100)}%` : item.heal ? `恢复气血 ${item.heal}` : item.power ? `威能 ${item.power}` : item.qi ? `灵气值 ${item.qi}` : '';
     const selected = i === selectedBagIndex ? ' style="outline:2px solid #ffd966"' : '';
     const actionHint = isEquipableWeapon(item) ? '【可装备】' : isEquipableTreasure(item) ? '【可作法宝】' : item.type === 'staminaPill' || item.type === 'pill' ? '【可使用】' : '';
-    return `<div class="item"${selected} onclick="selectBagItem(${i})"><span class="${itemQualityClass(item)}">${item.name}</span><br><span class="small">${tag}${extra ? '｜' + extra : ''}${actionHint ? '｜' + actionHint : ''}</span></div>`;
+    return `<div class="item"${selected} onclick="selectBagItem(${i})"><span class="${itemQualityClass(item)}">${item.name}</span> × ${g.count}<br><span class="small">${tag}${extra ? '｜' + extra : ''}${actionHint ? '｜' + actionHint : ''}</span></div>`;
   }).join('');
 }
 function renderTop(){
@@ -1338,8 +1500,8 @@ function renderMoreBox(){
 }
 function renderInventoryBox(){
   const summary = countByName(state.bag);
-  const html = Object.keys(summary).length ? Object.entries(summary).map(([name,count])=>`${name} × ${count}`).join('<br>') : '储物袋空空如也。';
-  document.getElementById('inventoryBox').innerHTML = `<h3>储物袋摘要</h3><p>${html}</p><div class="small mt8">详细查看与装备请前往【背包】页面。</div>`;
+  const summaryHtml = Object.keys(summary).length ? Object.entries(summary).map(([name,count])=>`${name} × ${count}`).join('<br>') : '储物袋空空如也。';
+  document.getElementById('inventoryBox').innerHTML = `<h3>储物袋摘要</h3><p>${summaryHtml}</p><div class="small mt8">同类物品已自动堆叠，详细查看与装备请前往【背包】页面。</div>`;
 }
 function renderResultLog(){
   document.getElementById('resultLog').innerHTML = state.logs.map(x=>`<div class="log-item">${x}</div>`).join('');
@@ -1359,6 +1521,7 @@ function renderAll(){
   renderMoreBox();
   renderInventoryBox();
   renderBagBox();
+  renderMarketBox();
   renderResultLog();
 }
 function switchTab(tab, el){
